@@ -13,17 +13,24 @@ import {
   getDocs,
   orderBy,
   query,
-  limit
+  limit,
+  addDoc,
+  serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const config = window.firebaseConfig;
 const root = document.querySelector('main');
+const loginSection = document.querySelector('[data-view="login"]');
+const appSection = document.querySelector('[data-view="app"]');
 const loginErrorEl = document.getElementById('login-error');
 const dataErrorEl = document.getElementById('data-error');
-const loginSection = document.querySelector('[data-view="login"]');
-const dashboardSection = document.querySelector('[data-view="dashboard"]');
 const userPanel = document.querySelector('.user-panel');
+const userEmailEl = document.getElementById('user-email');
 const refreshBtn = document.getElementById('refresh');
 const signOutBtn = document.getElementById('sign-out');
-const userEmailEl = document.getElementById('user-email');
+
+const navButtons = document.querySelectorAll('[data-nav]');
+const panels = document.querySelectorAll('[data-section]');
 
 const metricDonations = document.getElementById('metric-donations');
 const metricWishlist = document.getElementById('metric-wishlist');
@@ -31,56 +38,24 @@ const metricRequests = document.getElementById('metric-requests');
 
 const donationsList = document.getElementById('donations-list');
 const donationsCount = document.getElementById('donations-count');
+const donationsTable = document.getElementById('donations-table');
+
 const wishlistList = document.getElementById('wishlist-list');
 const wishlistCount = document.getElementById('wishlist-count');
+const wishlistTable = document.getElementById('wishlist-table');
+const wishlistForm = document.getElementById('wishlist-form');
+const wishlistStatus = document.getElementById('wishlist-status');
+
 const requestsList = document.getElementById('requests-list');
 const requestsCount = document.getElementById('requests-count');
-
-const crmProspectsList = document.getElementById('crm-prospects');
-const crmNurturingList = document.getElementById('crm-nurturing');
-const crmChampionsList = document.getElementById('crm-champions');
-const crmProspectsCount = document.getElementById('crm-prospects-count');
-const crmNurturingCount = document.getElementById('crm-nurturing-count');
-const crmChampionsCount = document.getElementById('crm-champions-count');
-const crmCasesList = document.getElementById('crm-cases');
-const crmCasesCount = document.getElementById('crm-cases-count');
-const crmTasksList = document.getElementById('crm-tasks');
-const crmTasksCount = document.getElementById('crm-tasks-count');
-
-const CRM_STAGE_CONFIG = {
-  prospect: {
-    list: crmProspectsList,
-    count: crmProspectsCount,
-    empty: 'No prospects logged. Add your next warm lead.'
-  },
-  nurturing: {
-    list: crmNurturingList,
-    count: crmNurturingCount,
-    empty: 'Nothing in progress. Follow up with a donor to populate this column.'
-  },
-  champion: {
-    list: crmChampionsList,
-    count: crmChampionsCount,
-    empty: 'No champions tracked yet. Celebrate recurring donors here.'
-  }
-};
+const requestsTable = document.getElementById('requests-table');
 
 const fmtCurrency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 const fmtDate = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' });
 
-let config;
-try {
-  const promise = window.firebaseConfigPromise || Promise.resolve(window.firebaseConfig);
-  config = await promise;
-} catch (error) {
-  loginSection.innerHTML =
-    '<p class="error">Unable to load Firebase configuration. Check Netlify serverless logs.</p>';
-  throw error;
-}
-
 if (!config || !config.apiKey) {
-  loginSection.innerHTML = '<p class="error">Missing Firebase configuration. Update Netlify env vars.</p>';
-  throw new Error('Missing Firebase configuration');
+  loginSection.innerHTML = '<p class="error">Missing Firebase configuration. Update admin/firebase-config.js.</p>';
+  throw new Error('Firebase config missing');
 }
 
 const app = initializeApp(config);
@@ -88,6 +63,12 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 setPersistence(auth, browserLocalPersistence).catch(() => {});
+
+const state = {
+  donations: [],
+  wishlist: [],
+  requests: []
+};
 
 const loginForm = document.getElementById('login-form');
 loginForm.addEventListener('submit', async (event) => {
@@ -107,40 +88,78 @@ loginForm.addEventListener('submit', async (event) => {
 signOutBtn.addEventListener('click', () => signOut(auth));
 refreshBtn.addEventListener('click', () => refreshData());
 
+navButtons.forEach((button) =>
+  button.addEventListener('click', () => {
+    setActivePanel(button.dataset.nav);
+  })
+);
+
+wishlistForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  wishlistStatus.textContent = '';
+  if (!auth.currentUser) {
+    wishlistStatus.textContent = 'Sign in required.';
+    return;
+  }
+  const formData = new FormData(wishlistForm);
+  const payload = {
+    program: formData.get('program')?.trim() || 'General',
+    title: formData.get('title')?.trim() || 'Untitled item',
+    price: Number(formData.get('price')) || 0,
+    quantityNeeded: Number(formData.get('quantity')) || 0,
+    quantityFunded: 0,
+    image: formData.get('image')?.trim() || '',
+    notes: formData.get('notes')?.trim() || '',
+    createdAt: serverTimestamp()
+  };
+  try {
+    await addDoc(collection(db, 'wishlistItems'), payload);
+    wishlistForm.reset();
+    wishlistStatus.textContent = '✅ Item added.';
+    refreshData();
+  } catch (error) {
+    console.error(error);
+    wishlistStatus.textContent = 'Unable to add item. Check Firestore permissions.';
+  }
+});
+
 onAuthStateChanged(auth, (user) => {
   if (user) {
     root.dataset.state = 'authenticated';
     userPanel.dataset.auth = 'signed-in';
     userEmailEl.textContent = user.email ?? 'Admin';
+    setActivePanel('dashboard');
     refreshData();
   } else {
     root.dataset.state = 'signed-out';
     userPanel.dataset.auth = 'signed-out';
     userEmailEl.textContent = '—';
-    clearLists();
+    clearUI();
   }
 });
 
-function clearLists() {
+function setActivePanel(panelId) {
+  navButtons.forEach((button) => {
+    button.classList.toggle('active', button.dataset.nav === panelId);
+  });
+  panels.forEach((panel) => {
+    panel.classList.toggle('active', panel.dataset.section === panelId);
+  });
+}
+
+function clearUI() {
   metricDonations.textContent = '—';
   metricWishlist.textContent = '—';
   metricRequests.textContent = '—';
   donationsList.innerHTML = '';
-  donationsCount.textContent = '0';
+  donationsTable.innerHTML = '<p class="placeholder">Sign in to view donations.</p>';
   wishlistList.innerHTML = '';
-  wishlistCount.textContent = '0';
+  wishlistTable.innerHTML = '<p class="placeholder">Sign in to manage the wish list.</p>';
   requestsList.innerHTML = '';
+  requestsTable.innerHTML = '<p class="placeholder">Sign in to view support requests.</p>';
+  donationsCount.textContent = '0';
+  wishlistCount.textContent = '0';
   requestsCount.textContent = '0';
-  crmProspectsList.innerHTML = '';
-  crmNurturingList.innerHTML = '';
-  crmChampionsList.innerHTML = '';
-  crmProspectsCount.textContent = '0';
-  crmNurturingCount.textContent = '0';
-  crmChampionsCount.textContent = '0';
-  crmCasesList.innerHTML = '';
-  crmCasesCount.textContent = '0';
-  crmTasksList.innerHTML = '';
-  crmTasksCount.textContent = '0';
 }
 
 async function refreshData() {
@@ -149,17 +168,20 @@ async function refreshData() {
   dataErrorEl.textContent = '';
   try {
     const [donations, wishlist, requests] = await Promise.all([
-      fetchCollection('donations', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 6 }),
+      fetchCollection('donations', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 12 }),
       fetchCollection('wishlistItems', { orderByField: 'title' }),
-      fetchCollection('supportRequests', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 6 })
+      fetchCollection('supportRequests', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 12 })
     ]);
-    renderDonations(donations);
-    renderWishlist(wishlist);
-    renderRequests(requests);
-    renderCRM({ donations, wishlist, requests });
+    state.donations = donations;
+    state.wishlist = wishlist;
+    state.requests = requests;
+    renderDashboard(donations, wishlist, requests);
+    renderWishlistManager();
+    renderDonationsTable();
+    renderRequestsTable();
   } catch (error) {
     console.error(error);
-    dataErrorEl.textContent = 'Unable to load data. Check Firestore rules or network connection.';
+    dataErrorEl.textContent = 'Unable to load data. Check Firestore rules or network.';
   } finally {
     setLoading(false);
   }
@@ -178,25 +200,37 @@ async function fetchCollection(name, options = {}) {
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }
 
-function renderDonations(rows) {
+function renderDashboard(donations, wishlist, requests) {
+  renderDonationsSummary(donations);
+  renderWishlistSummary(wishlist);
+  renderRequestsSummary(requests);
+}
+
+function renderDonationsSummary(rows) {
   donationsCount.textContent = String(rows.length);
+  if (!rows.length) {
+    donationsList.innerHTML = '<li>No donations recorded.</li>';
+    metricDonations.textContent = fmtCurrency.format(0);
+    return;
+  }
   const total = rows.reduce((sum, row) => sum + Number(row.amount || 0), 0);
   metricDonations.textContent = fmtCurrency.format(total);
   donationsList.innerHTML = rows
+    .slice(0, 6)
     .map((row) => {
       const donor = row.donorName || row.email || 'Anonymous';
       const amount = fmtCurrency.format(row.amount || 0);
-      const date = row.createdAt?.toDate ? fmtDate.format(row.createdAt.toDate()) : '—';
+      const date = renderDate(row.createdAt);
       const program = row.program || row.programName || 'General';
       return `<li><strong>${donor}</strong> pledged <strong>${amount}</strong><br><small>${program} · ${date}</small></li>`;
     })
-    .join('') || '<li>No donations yet.</li>';
+    .join('');
 }
 
-function renderWishlist(rows) {
+function renderWishlistSummary(rows) {
   wishlistCount.textContent = String(rows.length);
   if (!rows.length) {
-    wishlistList.innerHTML = '<li>No wish list items found.</li>';
+    wishlistList.innerHTML = '<li>No active wish list items.</li>';
     metricWishlist.textContent = '0 / 0';
     return;
   }
@@ -204,130 +238,127 @@ function renderWishlist(rows) {
   const needed = rows.reduce((sum, row) => sum + Number(row.quantityNeeded || 0), 0);
   metricWishlist.textContent = `${funded} / ${needed || '?'} items`;
   wishlistList.innerHTML = rows
+    .slice(0, 6)
     .map((row) => {
-      const percent = needed ? Math.round(((row.quantityFunded || 0) / Math.max(row.quantityNeeded || 1, 1)) * 100) : 0;
+      const percent = progressPercent(row);
       return `<li><strong>${row.title || row.name}</strong><br><small>${row.quantityFunded || 0} of ${row.quantityNeeded || '?'} funded · ${percent}%</small></li>`;
     })
     .join('');
 }
 
-function renderRequests(rows) {
+function renderRequestsSummary(rows) {
   requestsCount.textContent = String(rows.length);
-  metricRequests.textContent = rows.filter((row) => (row.status || 'open') === 'open').length;
-  requestsList.innerHTML = rows.length
-    ? rows
-        .map((row) => {
-          const requester = row.name || 'Neighbor';
-          const need = row.need || row.summary || 'No details';
-          const date = row.createdAt?.toDate ? fmtDate.format(row.createdAt.toDate()) : '—';
-          const status = row.status || 'open';
-          return `<li><strong>${requester}</strong> · ${status}<br><small>${need}<br>${date}</small></li>`;
-        })
-        .join('')
-    : '<li>No support requests logged.</li>';
-}
-
-function renderCRM(payload) {
-  renderCRMBoard(payload.donations || []);
-  renderCRMCases(payload.requests || []);
-  renderCRMTasks(payload.wishlist || []);
-}
-
-function renderCRMBoard(rows) {
-  const stageBuckets = {
-    prospect: [],
-    nurturing: [],
-    champion: []
-  };
-  rows.forEach((row) => {
-    const stage = getStageForDonation(row);
-    stageBuckets[stage].push(row);
-  });
-
-  Object.entries(stageBuckets).forEach(([stage, bucket]) => {
-    const { list, count, empty } = CRM_STAGE_CONFIG[stage];
-    count.textContent = String(bucket.length);
-    list.innerHTML = bucket.length
-      ? bucket
-          .map((row) => {
-            const donor = row.donorName || row.organization || row.email || 'Anonymous';
-            const focus = row.program || row.programName || row.note || 'General support';
-            const amount = row.amount ? fmtCurrency.format(Number(row.amount)) : '—';
-            const date = row.createdAt?.toDate ? fmtDate.format(row.createdAt.toDate()) : 'No gifts logged';
-            return `<li><strong>${donor}</strong><small>${focus}</small><small>Last gift: ${amount} · ${date}</small></li>`;
-          })
-          .join('')
-      : `<li>${empty}</li>`;
-  });
-}
-
-function renderCRMCases(rows) {
   if (!rows.length) {
-    crmCasesCount.textContent = '0';
-    crmCasesList.innerHTML = '<li>No support cases yet.</li>';
+    requestsList.innerHTML = '<li>No support requests logged.</li>';
+    metricRequests.textContent = '0';
     return;
   }
-  const openCases = rows.filter((row) => (row.status || 'open').toLowerCase() !== 'closed');
-  crmCasesCount.textContent = String(openCases.length);
-  const items = (openCases.length ? openCases : rows).slice(0, 6);
-  crmCasesList.innerHTML = items
+  const openCount = rows.filter((row) => (row.status || 'open') === 'open').length;
+  metricRequests.textContent = String(openCount);
+  requestsList.innerHTML = rows
+    .slice(0, 6)
     .map((row) => {
-      const requester = row.name || row.familyName || 'Neighbor';
-      const status = (row.status || 'open').replace(/\b\w/g, (char) => char.toUpperCase());
-      const city = row.city || row.county || '';
-      const summary = row.need || row.summary || 'No description yet.';
-      const date = row.createdAt?.toDate ? fmtDate.format(row.createdAt.toDate()) : '—';
-      const location = city ? ` · ${city}` : '';
-      return `<li><strong>${requester}${location}</strong><small>${summary}</small><small>Status: ${status} · ${date}</small></li>`;
+      const requester = row.name || 'Neighbor';
+      const need = row.need || row.summary || '—';
+      const date = renderDate(row.createdAt);
+      const status = row.status || 'open';
+      return `<li><strong>${requester}</strong> · ${status}<br><small>${need}<br>${date}</small></li>`;
     })
     .join('');
 }
 
-function renderCRMTasks(rows) {
+function renderWishlistManager() {
+  const rows = state.wishlist;
   if (!rows.length) {
-    crmTasksCount.textContent = '0';
-    crmTasksList.innerHTML = '<li>No wish list items to fulfill.</li>';
+    wishlistTable.innerHTML = '<p class="placeholder">No wish list items yet.</p>';
     return;
   }
-  const tasks = rows
+  wishlistTable.innerHTML = rows
     .map((row) => {
-      const needed = Number(row.quantityNeeded || 0);
-      const funded = Number(row.quantityFunded || 0);
-      return {
-        title: row.title || row.name || 'Wish list item',
-        owner: row.owner || row.contact || 'Sourcing team',
-        remaining: Math.max(needed - funded, 0),
-        needed,
-        funded
-      };
+      const percent = progressPercent(row);
+      const price = fmtCurrency.format(row.price || 0);
+      return `
+        <div class="row">
+          <div>
+            <strong>${row.title || 'Untitled item'}</strong>
+            <small>${row.program || 'General'} · ${row.quantityFunded || 0}/${row.quantityNeeded || '?'} funded (${percent}%)</small>
+          </div>
+          <div>
+            <strong>${price}</strong>
+          </div>
+        </div>
+      `;
     })
-    .filter((row) => row.needed === 0 || row.remaining > 0)
-    .sort((a, b) => b.remaining - a.remaining)
-    .slice(0, 6);
-
-  crmTasksCount.textContent = String(tasks.length);
-  crmTasksList.innerHTML =
-    tasks.length > 0
-      ? tasks
-          .map((task) => {
-            const remainingLabel =
-              task.needed === 0 ? 'Need qty not set' : `${task.remaining} of ${task.needed} remaining`;
-            return `<li><strong>${task.title}</strong><small>${remainingLabel}</small><small>Owner: ${task.owner}</small></li>`;
-          })
-          .join('')
-      : '<li>All wish list items are fully funded!</li>';
+    .join('');
 }
 
-function getStageForDonation(row) {
-  const rawStage = String(row.stage || row.relationshipStage || row.tier || '').toLowerCase();
-  if (rawStage.includes('champ') || rawStage.includes('major') || rawStage.includes('partner')) return 'champion';
-  if (rawStage.includes('nurtur') || rawStage.includes('cultivate') || rawStage.includes('engag')) return 'nurturing';
-  if (rawStage.includes('prospect') || rawStage.includes('lead')) return 'prospect';
+function renderDonationsTable() {
+  const rows = state.donations;
+  if (!rows.length) {
+    donationsTable.innerHTML = '<p class="placeholder">No donations captured yet.</p>';
+    return;
+  }
+  donationsTable.innerHTML = rows
+    .map((row) => {
+      const donor = row.donorName || row.email || 'Anonymous';
+      const amount = fmtCurrency.format(row.amount || 0);
+      const date = renderDate(row.createdAt);
+      const program = row.program || row.programName || 'General';
+      return `
+        <div class="row">
+          <div>
+            <strong>${donor}</strong>
+            <small>${program} · ${date}</small>
+          </div>
+          <div>
+            <strong>${amount}</strong>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+}
 
-  const amount = Number(row.amount || 0);
-  if (amount >= 2500) return 'champion';
-  if (amount > 0) return 'nurturing';
-  return 'prospect';
+function renderRequestsTable() {
+  const rows = state.requests;
+  if (!rows.length) {
+    requestsTable.innerHTML = '<p class="placeholder">No requests captured yet.</p>';
+    return;
+  }
+  requestsTable.innerHTML = rows
+    .map((row) => {
+      const requester = row.name || 'Neighbor';
+      const status = row.status || 'open';
+      const date = renderDate(row.createdAt);
+      const need = row.need || row.summary || '—';
+      return `
+        <div class="row">
+          <div>
+            <strong>${requester}</strong>
+            <small>${status} · ${date}</small>
+            <small>${need}</small>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+}
+
+function renderDate(timestamp) {
+  if (!timestamp) return '—';
+  if (typeof timestamp.toDate === 'function') {
+    return fmtDate.format(timestamp.toDate());
+  }
+  if (timestamp.seconds) {
+    return fmtDate.format(new Date(timestamp.seconds * 1000));
+  }
+  return '—';
+}
+
+function progressPercent(row) {
+  const needed = Number(row.quantityNeeded || 0) || 0;
+  if (!needed) return 0;
+  return Math.min(100, Math.round(((row.quantityFunded || 0) / needed) * 100));
 }
 
 function setLoading(isLoading) {

@@ -2,17 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device=device-width, initial-scale=1.0" />
-  <title>Mana Foundation Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mana Foundation Admin Portal</title>
   <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
-  <main class="shell">
+  <main class="shell" data-state="signed-out">
     <header class="branding">
       <div>
         <p class="eyebrow">Mana Foundation</p>
-        <h1>Admin Control Center</h1>
-        <p class="lede">Secure portal for processing wish list donations, CRM entries, and program metrics.</p>
+        <h1>Operations &amp; CRM Portal</h1>
+        <p class="lede">
+          Manage wish list inventory, review donations, and respond to community requests. Access limited to authorized
+          administrators.
+        </p>
       </div>
       <div class="user-panel" data-auth="signed-out">
         <div>
@@ -25,7 +28,7 @@
 
     <section class="card" data-view="login">
       <h2>Admin sign in</h2>
-      <p>Use your Firebase email + password. Accounts are provisioned manually for now.</p>
+      <p>Use your Firebase email and password. Contact the site owner to provision new accounts.</p>
       <form id="login-form">
         <label>
           Email
@@ -36,124 +39,144 @@
           <input type="password" name="password" autocomplete="current-password" required />
         </label>
         <button class="btn" type="submit">Sign in</button>
-        <p class="form-hint">Need access? Contact the site owner to invite you via Firebase Auth.</p>
+        <p class="form-hint">Need access? Email the site owner to get invited.</p>
       </form>
       <p class="error" id="login-error" role="alert"></p>
     </section>
 
-    <section class="dashboard" data-view="dashboard">
-      <div class="toolbar">
-        <div>
-          <h2>Operational snapshot</h2>
-          <p>Live data pulled from Firebase. Refresh after manual adjustments.</p>
-        </div>
-        <button class="btn" id="refresh">Refresh data</button>
-      </div>
-      <p class="error" id="data-error" role="alert"></p>
-      <div class="metrics">
-        <article>
-          <p class="label">Total donations (all time)</p>
-          <p class="value" id="metric-donations">—</p>
-        </article>
-        <article>
-          <p class="label">Wish list progress</p>
-          <p class="value" id="metric-wishlist">—</p>
-        </article>
-        <article>
-          <p class="label">Open support requests</p>
-          <p class="value" id="metric-requests">—</p>
-        </article>
-      </div>
-
-      <div class="grid">
-        <section>
-          <header>
-            <h3>Latest donations</h3>
-            <span id="donations-count" class="badge">0</span>
-          </header>
-          <ul class="list" id="donations-list"></ul>
-        </section>
-        <section>
-          <header>
-            <h3>Wish list inventory</h3>
-            <span id="wishlist-count" class="badge">0</span>
-          </header>
-          <ul class="list" id="wishlist-list"></ul>
-        </section>
-        <section>
-          <header>
-            <h3>Support requests</h3>
-            <span id="requests-count" class="badge">0</span>
-          </header>
-          <ul class="list" id="requests-list"></ul>
-        </section>
-      </div>
-
-      <section class="crm">
-        <header class="crm-header">
-          <div>
-            <p class="eyebrow">CRM workspace</p>
-            <h2>Relationships &amp; cases</h2>
-            <p>Track donors, partners, and urgent household requests in one place.</p>
+    <section class="app-frame" data-view="app">
+      <div class="admin-layout">
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <h2>Control center</h2>
+            <p>Quick links</p>
           </div>
-          <div class="crm-actions">
-            <button class="btn ghost" type="button" disabled>Filter board</button>
-            <button class="btn" type="button" disabled>Log activity</button>
-          </div>
-        </header>
+          <nav class="sidebar-nav">
+            <button class="nav-item active" data-nav="dashboard">📊 Dashboard</button>
+            <button class="nav-item" data-nav="wishlist">🧾 Wish list</button>
+            <button class="nav-item" data-nav="donations">💝 Donations</button>
+            <button class="nav-item" data-nav="requests">📨 Support requests</button>
+          </nav>
+        </aside>
 
-        <div class="crm-board">
-          <article class="crm-column">
-            <header>
+        <section class="workspace">
+          <section class="panel" data-section="dashboard">
+            <div class="toolbar">
               <div>
-                <h3>Prospects</h3>
-                <p>Warm leads, grants, and new partners.</p>
+                <h2>Operational snapshot</h2>
+                <p>Live data pulled from Firebase. Refresh after large batches or imports.</p>
               </div>
-              <span class="badge" id="crm-prospects-count">0</span>
-            </header>
-            <ul class="crm-list" id="crm-prospects"></ul>
-          </article>
+              <button class="btn" id="refresh" type="button">Refresh data</button>
+            </div>
+            <p class="error" id="data-error" role="alert"></p>
+            <div class="metrics">
+              <article>
+                <p class="label">Total donations (recent)</p>
+                <p class="value" id="metric-donations">—</p>
+              </article>
+              <article>
+                <p class="label">Wish list progress</p>
+                <p class="value" id="metric-wishlist">—</p>
+              </article>
+              <article>
+                <p class="label">Open support requests</p>
+                <p class="value" id="metric-requests">—</p>
+              </article>
+            </div>
+            <div class="grid">
+              <section>
+                <header>
+                  <h3>Latest donations</h3>
+                  <span id="donations-count" class="badge">0</span>
+                </header>
+                <ul class="list" id="donations-list"></ul>
+              </section>
+              <section>
+                <header>
+                  <h3>Wish list inventory</h3>
+                  <span id="wishlist-count" class="badge">0</span>
+                </header>
+                <ul class="list" id="wishlist-list"></ul>
+              </section>
+              <section>
+                <header>
+                  <h3>Support requests</h3>
+                  <span id="requests-count" class="badge">0</span>
+                </header>
+                <ul class="list" id="requests-list"></ul>
+              </section>
+            </div>
+          </section>
 
-          <article class="crm-column">
-            <header>
+          <section class="panel" data-section="wishlist">
+            <header class="panel-header">
               <div>
-                <h3>Nurturing</h3>
-                <p>Conversations in motion.</p>
+                <h2>Wish list manager</h2>
+                <p>Add new items, track quantity funded, and keep the storefront updated.</p>
               </div>
-              <span class="badge" id="crm-nurturing-count">0</span>
             </header>
-            <ul class="crm-list" id="crm-nurturing"></ul>
-          </article>
+            <div class="panel-body two-column">
+              <form id="wishlist-form">
+                <label>
+                  Program name
+                  <input type="text" name="program" placeholder="Community Pantry" required />
+                </label>
+                <label>
+                  Item title
+                  <input type="text" name="title" placeholder="Refrigerated box truck" required />
+                </label>
+                <label>
+                  Price (USD)
+                  <input type="number" name="price" min="0" step="0.01" placeholder="85000" required />
+                </label>
+                <label>
+                  Quantity needed
+                  <input type="number" name="quantity" min="1" step="1" placeholder="2" required />
+                </label>
+                <label>
+                  Image URL
+                  <input type="url" name="image" placeholder="https://images.unsplash.com/..." />
+                </label>
+                <label>
+                  Notes / Description
+                  <textarea name="notes" rows="3" placeholder="Why this item matters"></textarea>
+                </label>
+                <button class="btn" type="submit">Add wish list item</button>
+                <p class="form-hint">Items are stored in Firestore under <code>wishlistItems</code>.</p>
+                <p class="status" id="wishlist-status"></p>
+              </form>
 
-          <article class="crm-column">
-            <header>
+              <div class="table" id="wishlist-table">
+                <p class="placeholder">Loading wish list…</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" data-section="donations">
+            <header class="panel-header">
               <div>
-                <h3>Champions</h3>
-                <p>Recurring donors + key partners.</p>
+                <h2>Donation feed</h2>
+                <p>Recent Stripe checkouts and manual entries.</p>
               </div>
-              <span class="badge" id="crm-champions-count">0</span>
             </header>
-            <ul class="crm-list" id="crm-champions"></ul>
-          </article>
-        </div>
+            <div class="table" id="donations-table">
+              <p class="placeholder">Loading donations…</p>
+            </div>
+          </section>
 
-        <div class="crm-panels">
-          <article>
-            <header>
-              <h3>Active cases</h3>
-              <span class="badge" id="crm-cases-count">0</span>
+          <section class="panel" data-section="requests">
+            <header class="panel-header">
+              <div>
+                <h2>Support &amp; hotline requests</h2>
+                <p>Track outreach forms captured via the public site.</p>
+              </div>
             </header>
-            <ul class="crm-list" id="crm-cases"></ul>
-          </article>
-          <article>
-            <header>
-              <h3>Wish list tasks</h3>
-              <span class="badge" id="crm-tasks-count">0</span>
-            </header>
-            <ul class="crm-list" id="crm-tasks"></ul>
-          </article>
-        </div>
-      </section>
+            <div class="table" id="requests-table">
+              <p class="placeholder">Loading requests…</p>
+            </div>
+          </section>
+        </section>
+      </div>
     </section>
   </main>
 
