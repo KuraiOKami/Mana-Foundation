@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device=device-width, initial-scale=1.0" />
+  <title>Mana Foundation Admin</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="branding">
+      <div>
+        <p class="eyebrow">Mana Foundation</p>
+        <h1>Admin Control Center</h1>
+        <p class="lede">Secure portal for processing wish list donations, CRM entries, and program metrics.</p>
+      </div>
+      <div class="user-panel" data-auth="signed-out">
+        <div>
+          <p class="label">Signed in as</p>
+          <p class="value" id="user-email">—</p>
+        </div>
+        <button id="sign-out" class="btn ghost" type="button">Sign out</button>
+      </div>
+    </header>
+
+    <section class="card" data-view="login">
+      <h2>Admin sign in</h2>
+      <p>Use your Firebase email + password. Accounts are provisioned manually for now.</p>
+      <form id="login-form">
+        <label>
+          Email
+          <input type="email" name="email" autocomplete="username" required />
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" autocomplete="current-password" required />
+        </label>
+        <button class="btn" type="submit">Sign in</button>
+        <p class="form-hint">Need access? Contact the site owner to invite you via Firebase Auth.</p>
+      </form>
+      <p class="error" id="login-error" role="alert"></p>
+    </section>
+
+    <section class="dashboard" data-view="dashboard">
+      <div class="toolbar">
+        <div>
+          <h2>Operational snapshot</h2>
+          <p>Live data pulled from Firebase. Refresh after manual adjustments.</p>
+        </div>
+        <button class="btn" id="refresh">Refresh data</button>
+      </div>
+      <p class="error" id="data-error" role="alert"></p>
+      <div class="metrics">
+        <article>
+          <p class="label">Total donations (all time)</p>
+          <p class="value" id="metric-donations">—</p>
+        </article>
+        <article>
+          <p class="label">Wish list progress</p>
+          <p class="value" id="metric-wishlist">—</p>
+        </article>
+        <article>
+          <p class="label">Open support requests</p>
+          <p class="value" id="metric-requests">—</p>
+        </article>
+      </div>
+
+      <div class="grid">
+        <section>
+          <header>
+            <h3>Latest donations</h3>
+            <span id="donations-count" class="badge">0</span>
+          </header>
+          <ul class="list" id="donations-list"></ul>
+        </section>
+        <section>
+          <header>
+            <h3>Wish list inventory</h3>
+            <span id="wishlist-count" class="badge">0</span>
+          </header>
+          <ul class="list" id="wishlist-list"></ul>
+        </section>
+        <section>
+          <header>
+            <h3>Support requests</h3>
+            <span id="requests-count" class="badge">0</span>
+          </header>
+          <ul class="list" id="requests-list"></ul>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="firebase-config.js"></script>
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
