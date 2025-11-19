@@ -19,19 +19,31 @@
         <li><a href="mission.html">Mission</a></li>
         <li><a href="programs.html">Programs</a></li>
         <li><a href="impact.html" class="active">Impact</a></li>
+        <li><a href="wish-list.html">Wish List</a></li>
         <li><a href="get-involved.html">Get Involved</a></li>
         <li><a href="contact.html" class="btn-link">Contact</a></li>
       </ul>
     </nav>
-    <div class="hero-content">
-      <p class="eyebrow">Impact</p>
-      <h1>Hope backed by transparent numbers.</h1>
-      <p class="lead">
-        Every dollar is stewarded with care. Below is a snapshot of 2023 outcomes plus the stories behind the metrics.
-      </p>
-      <div class="hero-actions">
-        <a class="btn" href="#report">Download impact brief</a>
-        <a class="btn ghost" href="#stories">Read personal stories</a>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <p class="eyebrow">Impact</p>
+        <h1>Hope backed by transparent numbers.</h1>
+        <p class="lead">
+          Every dollar is stewarded with care. Below is a snapshot of 2023 outcomes plus the stories behind the metrics.
+        </p>
+        <div class="hero-actions">
+          <a class="btn" href="#report">Download impact brief</a>
+          <a class="btn ghost" href="#stories">Read personal stories</a>
+        </div>
+      </div>
+      <div class="hero-media hero-carousel" data-interval="6300">
+        <img class="active"
+          src="https://images.unsplash.com/photo-1500534310685-86b8c7d7ad14?auto=format&fit=crop&w=1200&q=80"
+          alt="Team reviewing community impact data" />
+        <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=80"
+          alt="Community meeting with volunteers" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1509099839634-2563bdedde72?auto=format&fit=crop&w=1200&q=80"
+          alt="Family celebrating restored home" loading="lazy" />
       </div>
     </div>
   </header>
@@ -134,8 +146,6 @@
     <a href="#top">Back to top ↑</a>
   </footer>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+  <script src="app.js" defer></script>
 </body>
 </html>

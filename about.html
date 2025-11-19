@@ -19,20 +19,32 @@
         <li><a href="mission.html">Mission</a></li>
         <li><a href="programs.html">Programs</a></li>
         <li><a href="impact.html">Impact</a></li>
+        <li><a href="wish-list.html">Wish List</a></li>
         <li><a href="get-involved.html">Get Involved</a></li>
         <li><a href="contact.html" class="btn-link">Contact</a></li>
       </ul>
     </nav>
-    <div class="hero-content">
-      <p class="eyebrow">Who we are</p>
-      <h1>Mana means “strength for the journey.”</h1>
-      <p class="lead">
-        Founded in Orlando after the 2012 hurricane season, Mana Foundation unites neighbors, partners, and public
-        agencies so every Florida family has a trusted ally when crises hit.
-      </p>
-      <div class="hero-actions">
-        <a class="btn" href="mission.html">Discover our mission</a>
-        <a class="btn ghost" href="get-involved.html">Meet the movement</a>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <p class="eyebrow">Who we are</p>
+        <h1>Mana means “strength for the journey.”</h1>
+        <p class="lead">
+          Founded in Orlando after the 2012 hurricane season, Mana Foundation unites neighbors, partners, and public
+          agencies so every Florida family has a trusted ally when crises hit.
+        </p>
+        <div class="hero-actions">
+          <a class="btn" href="mission.html">Discover our mission</a>
+          <a class="btn ghost" href="get-involved.html">Meet the movement</a>
+        </div>
+      </div>
+      <div class="hero-media hero-carousel" data-interval="5200">
+        <img class="active"
+          src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=80"
+          alt="Community gathering in Orlando" />
+        <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=80"
+          alt="Volunteers planning strategy" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80"
+          alt="Care team collaborating" loading="lazy" />
       </div>
     </div>
   </header>
@@ -47,6 +59,10 @@
           long-term recovery for families across Central Florida. Today, we coordinate statewide coalitions, deploy
           mobile pantry units, and invest in policy advocacy to make Florida safer and more equitable for everyone.
         </p>
+        <figure class="img-frame" aria-hidden="true">
+          <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1000&q=80"
+            alt="Mana volunteers packing supplies" loading="lazy" />
+        </figure>
         <div class="timeline">
           <article>
             <h3>2012 — Neighbors helping neighbors</h3>
@@ -144,8 +160,6 @@
     <a href="#top">Back to top ↑</a>
   </footer>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+  <script src="app.js" defer></script>
 </body>
 </html>

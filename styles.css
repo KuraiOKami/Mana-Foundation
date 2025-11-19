@@ -37,12 +37,80 @@ a:hover {
   padding: 3rem clamp(1.5rem, 4vw, 5rem) 4rem;
 }
 
+.hero-inner {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.1fr) minmax(260px, 0.9fr);
+  gap: 3rem;
+  align-items: center;
+}
+
+.hero-media {
+  position: relative;
+  min-height: 360px;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(19, 65, 240, 0.15);
+  box-shadow: 0 30px 60px rgba(13, 22, 36, 0.15);
+}
+
+.hero-carousel img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+
+.hero-carousel img.active {
+  opacity: 1;
+}
+
+.carousel-dots {
+  position: absolute;
+  bottom: 1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.45rem;
+}
+
+.carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.carousel-dot.active {
+  background: white;
+}
+
 .page-hero {
   padding-bottom: 2.5rem;
 }
 
 .page-hero .hero-content h1 {
   font-size: clamp(2.2rem, 5vw, 3.2rem);
+}
+
+.img-frame {
+  border-radius: 1.25rem;
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+}
+
+.img-frame img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .nav {
@@ -99,6 +167,26 @@ h1 {
   margin-bottom: 2rem;
 }
 
+form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--card-border);
+  font: inherit;
+  background: white;
+}
+
+textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
 .eyebrow {
   text-transform: uppercase;
   font-size: 0.75rem;
@@ -124,6 +212,13 @@ h1 {
 .btn:hover {
   transform: translateY(-2px);
   text-decoration: none;
+}
+
+.btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .btn.ghost {
@@ -180,13 +275,120 @@ main {
 .mission-grid,
 .card-grid,
 .involved-grid,
-.stats {
+.stats,
+.gallery {
   display: grid;
   gap: 1.5rem;
 }
 
 .mission-grid {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.gallery {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.gallery img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 1rem;
+  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.08);
+  border: 1px solid var(--card-border);
+}
+
+.progress-tracker {
+  margin-top: 1.25rem;
+}
+
+.progress-tracker header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  font-weight: 600;
+}
+
+.progress {
+  margin-top: 0.75rem;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(19, 65, 240, 0.12);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: var(--progress, 0%);
+  background: linear-gradient(90deg, #1341f0, #5f7dff);
+  border-radius: 999px;
+}
+
+.progress-meta {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: rgba(14, 22, 36, 0.7);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.wishlist-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.wishlist-card {
+  background: white;
+  border-radius: 1.4rem;
+  border: 1px solid var(--card-border);
+  box-shadow: 0 18px 40px rgba(10, 20, 40, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.wishlist-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.wishlist-card .content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex: 1;
+}
+
+.wishlist-card .price {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+.wishlist-card footer {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  border-top: 1px solid var(--card-border);
+}
+
+.wishlist-card small {
+  font-size: 0.85rem;
+  color: rgba(14, 22, 36, 0.7);
 }
 
 .mission-grid article {
@@ -362,5 +564,13 @@ main {
   .timeline {
     border-left: none;
     padding-left: 0;
+  }
+
+  .hero-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-media {
+    min-height: 260px;
   }
 }

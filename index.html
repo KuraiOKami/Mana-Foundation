@@ -19,20 +19,32 @@
         <li><a href="mission.html">Mission</a></li>
         <li><a href="programs.html">Programs</a></li>
         <li><a href="impact.html">Impact</a></li>
+        <li><a href="wish-list.html">Wish List</a></li>
         <li><a href="get-involved.html">Get Involved</a></li>
         <li><a href="contact.html" class="btn-link">Contact</a></li>
       </ul>
     </nav>
-    <div class="hero-content">
-      <p class="eyebrow">Florida communities • Since 2012</p>
-      <h1>Compassion that reaches every corner of Florida.</h1>
-      <p class="lead">
-        Mana Foundation walks alongside families facing hunger, displacement, and natural disasters—bringing
-        nutrition, resources, and hope when it matters most.
-      </p>
-      <div class="hero-actions">
-        <a href="#involved" class="btn">Join the movement</a>
-        <a href="#impact" class="btn ghost">See our impact</a>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <p class="eyebrow">Florida communities • Since 2012</p>
+        <h1>Compassion that reaches every corner of Florida.</h1>
+        <p class="lead">
+          Mana Foundation walks alongside families facing hunger, displacement, and natural disasters—bringing
+          nutrition, resources, and hope when it matters most.
+        </p>
+        <div class="hero-actions">
+          <a href="#involved" class="btn">Join the movement</a>
+          <a href="#impact" class="btn ghost">See our impact</a>
+        </div>
+      </div>
+      <div class="hero-media hero-carousel" data-interval="5500">
+        <img class="active"
+          src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80"
+          alt="Volunteers organizing relief supplies in Florida" />
+        <img src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=1200&q=80"
+          alt="Hot meals prepared for community members" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=80"
+          alt="Neighbors assembling care packages" loading="lazy" />
       </div>
     </div>
   </header>
@@ -115,6 +127,22 @@
           </ul>
           <a class="btn small" href="programs.html#advocacy">View priorities</a>
         </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Scenes from the field</p>
+        <h2>Neighbors serving neighbors across Florida.</h2>
+        <p>Placeholder photos capture the energy of our teams until we publish Mana Foundation’s official gallery.</p>
+      </div>
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=800&q=80"
+          alt="Prepared meals ready for distribution" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80"
+          alt="Volunteers carrying boxes" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1509099839634-2563bdedde72?auto=format&fit=crop&w=800&q=80"
+          alt="Family receiving relief supplies" loading="lazy" />
       </div>
     </section>
 
@@ -212,8 +240,6 @@
     <a href="#top">Back to top ↑</a>
   </footer>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+  <script src="app.js" defer></script>
 </body>
 </html>

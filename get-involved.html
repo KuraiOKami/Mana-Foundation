@@ -19,17 +19,29 @@
         <li><a href="mission.html">Mission</a></li>
         <li><a href="programs.html">Programs</a></li>
         <li><a href="impact.html">Impact</a></li>
+        <li><a href="wish-list.html">Wish List</a></li>
         <li><a href="get-involved.html" class="active">Get Involved</a></li>
         <li><a href="contact.html" class="btn-link">Contact</a></li>
       </ul>
     </nav>
-    <div class="hero-content">
-      <p class="eyebrow">Take action</p>
-      <h1>Generosity fuels every delivery, hotline call, and rebuilt home.</h1>
-      <p class="lead">
-        Whether you are an individual donor, a volunteer crew, or a corporate partner, there is a role for you in the
-        Mana movement.
-      </p>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <p class="eyebrow">Take action</p>
+        <h1>Generosity fuels every delivery, hotline call, and rebuilt home.</h1>
+        <p class="lead">
+          Whether you are an individual donor, a volunteer crew, or a corporate partner, there is a role for you in the
+          Mana movement.
+        </p>
+      </div>
+      <div class="hero-media hero-carousel" data-interval="5800">
+        <img class="active"
+          src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80"
+          alt="Community members volunteering together" />
+        <img src="https://images.unsplash.com/photo-1509099839634-2563bdedde72?auto=format&fit=crop&w=1200&q=80"
+          alt="Volunteers delivering supplies" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1500534310685-86b8c7d7ad14?auto=format&fit=crop&w=1200&q=80"
+          alt="Team briefing before deployment" loading="lazy" />
+      </div>
     </div>
   </header>
 
@@ -57,6 +69,13 @@
             <p>
               We will provide wiring instructions, giving receipts, and real-time updates from the field.
             </p>
+            <p>
+              Prefer online giving? A Stripe-powered checkout is being configured so donors can complete secure payments
+              without leaving the site.
+            </p>
+            <button class="btn small" type="button" disabled title="Stripe integration placeholder">
+              Stripe Checkout (coming soon)
+            </button>
           </article>
         </div>
       </div>
@@ -140,6 +159,50 @@
         </p>
       </div>
     </section>
+
+    <section class="section" id="infrastructure">
+      <div class="page-content">
+        <h2>Digital infrastructure roadmap</h2>
+        <p>
+          We are preparing a lightweight stack so donations, volunteer data, and impact stories are secure and easy to
+          manage.
+        </p>
+        <div class="card-grid">
+          <article class="card">
+            <h3>Stripe</h3>
+            <p>Use Stripe Checkout and Customer Portal for one-time and recurring gifts with Apple Pay / ACH support.</p>
+            <ul>
+              <li>Custom success + cancel pages on manafoundation.org</li>
+              <li>Webhooks to confirm gifts instantly</li>
+              <li>Auto-issued tax receipts</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Supabase</h3>
+            <p>
+              Host static assets, store volunteer/donor records, and trigger transactional emails through Supabase Edge
+              Functions + Email.
+            </p>
+            <ul>
+              <li>Table: <code>support_requests</code> for hotline follow-ups</li>
+              <li>Table: <code>volunteer_signups</code> synced from forms</li>
+              <li>Storage: image uploads for the gallery</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Hosting</h3>
+            <p>
+              Deploy this static site to Supabase Hosting (or Netlify) with CI from GitHub. Use Supabase auth if member
+              portals are needed later.
+            </p>
+            <ul>
+              <li>Preview branches for approvals</li>
+              <li>Protected environment variables for API keys</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="footer">
@@ -147,8 +210,6 @@
     <a href="#top">Back to top ↑</a>
   </footer>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+  <script src="app.js" defer></script>
 </body>
 </html>
