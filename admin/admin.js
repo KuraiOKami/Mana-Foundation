@@ -15,8 +15,6 @@ import {
   query,
   limit
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
-const config = window.firebaseConfig;
 const root = document.querySelector('main');
 const loginErrorEl = document.getElementById('login-error');
 const dataErrorEl = document.getElementById('data-error');
@@ -41,8 +39,18 @@ const requestsCount = document.getElementById('requests-count');
 const fmtCurrency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 const fmtDate = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' });
 
+let config;
+try {
+  const promise = window.firebaseConfigPromise || Promise.resolve(window.firebaseConfig);
+  config = await promise;
+} catch (error) {
+  loginSection.innerHTML =
+    '<p class="error">Unable to load Firebase configuration. Check Netlify serverless logs.</p>';
+  throw error;
+}
+
 if (!config || !config.apiKey) {
-  loginSection.innerHTML = '<p class="error">Missing Firebase configuration. Update admin/firebase-config.js.</p>';
+  loginSection.innerHTML = '<p class="error">Missing Firebase configuration. Update Netlify env vars.</p>';
   throw new Error('Missing Firebase configuration');
 }
 
