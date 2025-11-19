@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mana Foundation Impact | Hope You Can Count</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero page-hero">
+    <nav class="nav">
+      <div class="logo">Mana Foundation</div>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="mission.html">Mission</a></li>
+        <li><a href="programs.html">Programs</a></li>
+        <li><a href="impact.html" class="active">Impact</a></li>
+        <li><a href="get-involved.html">Get Involved</a></li>
+        <li><a href="contact.html" class="btn-link">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="hero-content">
+      <p class="eyebrow">Impact</p>
+      <h1>Hope backed by transparent numbers.</h1>
+      <p class="lead">
+        Every dollar is stewarded with care. Below is a snapshot of 2023 outcomes plus the stories behind the metrics.
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href="#report">Download impact brief</a>
+        <a class="btn ghost" href="#stories">Read personal stories</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" id="report">
+      <div class="page-content">
+        <h2>2023 by the numbers</h2>
+        <div class="stats">
+          <div>
+            <span class="stat">1.2M</span>
+            <p>Meals distributed with partner pantries</p>
+          </div>
+          <div>
+            <span class="stat">4,500</span>
+            <p>Families receiving rapid-response aid</p>
+          </div>
+          <div>
+            <span class="stat">82</span>
+            <p>Florida cities reached</p>
+          </div>
+          <div>
+            <span class="stat">95%</span>
+            <p>Of funds invested directly in programs</p>
+          </div>
+        </div>
+        <p>
+          Independent financial reviews are conducted annually. The 2023 impact brief details allocations across program
+          categories, demographic reach, and community feedback.
+        </p>
+        <div class="cta-row">
+          <a class="btn" href="mailto:hello@manafoundation.org?subject=Impact%20Report">Request the PDF</a>
+          <a class="btn ghost" href="https://example.com" target="_blank" rel="noopener">View financial summary</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section muted" id="nutrition">
+      <div class="page-content">
+        <h2>Nutrition &amp; stability outcomes</h2>
+        <div class="two-column">
+          <article>
+            <h3>Pantry reach</h3>
+            <p>
+              73% of guests reported the Community Pantry Network is their primary source of fresh produce. 41% live in a
+              census tract without a full-service grocery store.
+            </p>
+            <p>
+              Produce rescue partnerships prevented 520,000 pounds of food waste while increasing access to culturally
+              significant foods like yuca, plantains, and collard greens.
+            </p>
+          </article>
+          <article>
+            <h3>Household stability</h3>
+            <p>
+              Six months after receiving Mana support, 92% of families stabilized housing and 68% reported improved
+              employment or income.
+            </p>
+            <p>
+              Families are paired with case managers who coordinate counseling, workforce training, and rental support.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="stories">
+      <div class="page-content">
+        <h2>Stories from across Florida</h2>
+        <div class="card-grid">
+          <article class="card">
+            <p class="quote">
+              “Mana showed up 36 hours after Idalia and helped us tarp roofs, set up a solar charging station, and made
+              sure my grandmother had her insulin.”
+            </p>
+            <p class="attribution">— Shaun, Suwannee County</p>
+          </article>
+          <article class="card">
+            <p class="quote">
+              “The pantry team let me choose the ingredients I know how to cook. It felt like shopping, not charity.”
+            </p>
+            <p class="attribution">— Tasha, Apopka</p>
+          </article>
+          <article class="card">
+            <p class="quote">
+              “After our listening session in Immokalee, state leaders finally heard from farmworkers about heat safety.”
+            </p>
+            <p class="attribution">— Ana, Advocacy Fellow</p>
+          </article>
+        </div>
+        <div class="cta-row">
+          <a class="btn" href="get-involved.html">Help write the next story</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© <span id="year"></span> Mana Foundation. Mana means “strength for the journey.”</p>
+    <a href="#top">Back to top ↑</a>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

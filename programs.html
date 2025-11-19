@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mana Foundation Programs | Relief & Resilience</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero page-hero">
+    <nav class="nav">
+      <div class="logo">Mana Foundation</div>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="mission.html">Mission</a></li>
+        <li><a href="programs.html" class="active">Programs</a></li>
+        <li><a href="impact.html">Impact</a></li>
+        <li><a href="get-involved.html">Get Involved</a></li>
+        <li><a href="contact.html" class="btn-link">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="hero-content">
+      <p class="eyebrow">What we do</p>
+      <h1>Three program tracks keep Florida families moving forward.</h1>
+      <p class="lead">
+        Immediate relief, community-rooted nourishment, and systems-level advocacy operate in tandem so support reaches
+        every generation.
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href="#pantry">Community Pantry Network</a>
+        <a class="btn ghost" href="#relief">Emergency Relief</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" id="pantry">
+      <div class="page-content">
+        <p class="eyebrow">Program 01</p>
+        <h2>Community Pantry Network</h2>
+        <p>
+          Our mobile and pop-up pantries operate in food deserts across 37 counties. Rather than one-size-fits-all
+          distributions, each site is co-led by local partners to ensure culturally-relevant staples, fresh produce, and
+          wraparound referrals are available.
+        </p>
+        <div class="two-column">
+          <article>
+            <h3>Services</h3>
+            <ul>
+              <li>Weekly neighborhood markets with fresh produce</li>
+              <li>Senior home delivery routes powered by volunteers</li>
+              <li>Bilingual nutrition &amp; cooking classes</li>
+              <li>Benefits navigation for SNAP, WIC, and Medicaid</li>
+            </ul>
+          </article>
+          <article>
+            <h3>Infrastructure</h3>
+            <p>
+              Refrigerated box trucks, solar-powered cold storage, and a statewide purchasing co-op keep costs low while
+              prioritizing Florida farmers whenever possible.
+            </p>
+          </article>
+        </div>
+        <div class="cta-row">
+          <a class="btn" href="impact.html#nutrition">View pantry impact</a>
+          <a class="btn ghost" href="get-involved.html#volunteer">Volunteer at a pantry</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section muted" id="relief">
+      <div class="page-content">
+        <p class="eyebrow">Program 02</p>
+        <h2>Emergency Relief &amp; Disaster Prep</h2>
+        <p>
+          Mana Foundation operates rapid-response hubs from Miami to Pensacola. We stock hurricane kits year-round,
+          deploy mutual aid teams during wildfires or floods, and stay with families as they rebuild—a crucial step
+          often missing in disaster response.
+        </p>
+        <div class="two-column">
+          <article>
+            <h3>Before a storm</h3>
+            <ul>
+              <li>Preparedness workshops &amp; household plans</li>
+              <li>Distribution of generators, radios, and chargers</li>
+              <li>Evacuation transportation coordination</li>
+            </ul>
+          </article>
+          <article>
+            <h3>During &amp; after</h3>
+            <ul>
+              <li>Hot meal stations and hydration points</li>
+              <li>Emergency cash grants &amp; temporary housing support</li>
+              <li>Construction volunteer teams and supply drops</li>
+            </ul>
+          </article>
+        </div>
+        <div class="cta-row">
+          <a class="btn" href="mission.html">Learn about our response model</a>
+          <a class="btn ghost" href="get-involved.html#partners">Become a response partner</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="advocacy">
+      <div class="page-content">
+        <p class="eyebrow">Program 03</p>
+        <h2>Education &amp; Advocacy</h2>
+        <p>
+          Relief alone cannot close the gap. Through policy research, leadership development, and civic engagement, Mana
+          Foundation elevates the lived experiences of families navigating hunger, housing instability, and climate
+          disasters.
+        </p>
+        <div class="two-column">
+          <article>
+            <h3>Key initiatives</h3>
+            <ul>
+              <li>Florida Resilience Table policy working groups</li>
+              <li>Youth leadership fellowships each summer</li>
+              <li>Listening sessions hosted statewide</li>
+              <li>Annual advocacy day at the Florida Capitol</li>
+            </ul>
+          </article>
+          <article>
+            <h3>Policy priorities</h3>
+            <ul>
+              <li>Affordable housing protections</li>
+              <li>Expanded emergency SNAP/Liheap funding</li>
+              <li>Investment in resilient community infrastructure</li>
+              <li>Language access in emergency communications</li>
+            </ul>
+          </article>
+        </div>
+        <div class="cta-row">
+          <a class="btn" href="impact.html#stories">See resident stories</a>
+          <a class="btn ghost" href="get-involved.html#advocacy">Join advocacy efforts</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© <span id="year"></span> Mana Foundation. Mana means “strength for the journey.”</p>
+    <a href="#top">Back to top ↑</a>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
