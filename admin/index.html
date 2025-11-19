@@ -9,20 +9,29 @@
 <body>
   <main class="shell" data-state="signed-out">
     <header class="branding">
-      <div>
-        <p class="eyebrow">Mana Foundation</p>
-        <h1>Operations &amp; CRM Portal</h1>
-        <p class="lede">
-          Manage wish list inventory, review donations, and respond to community requests. Access limited to authorized
-          administrators.
-        </p>
+      <div class="brand-headline">
+        <div>
+          <p class="eyebrow">Mana Foundation</p>
+          <h1>Operations &amp; CRM Portal</h1>
+          <p class="lede">
+            Orchestrate every donor relationship, newsletter subscriber, and active program from a single command center.
+            Designed to mirror a best-in-class CRM experience for the team.
+          </p>
+        </div>
+        <div class="badges">
+          <span class="chip success">Live workspace</span>
+          <span class="chip muted">SOC2-inspired controls</span>
+        </div>
       </div>
       <div class="user-panel" data-auth="signed-out">
         <div>
           <p class="label">Signed in as</p>
           <p class="value" id="user-email">—</p>
         </div>
-        <button id="sign-out" class="btn ghost" type="button">Sign out</button>
+        <div class="user-actions">
+          <button class="btn ghost" type="button">Invite teammate</button>
+          <button id="sign-out" class="btn ghost" type="button">Sign out</button>
+        </div>
       </div>
     </header>
 
@@ -48,8 +57,11 @@
       <div class="admin-layout">
         <aside class="sidebar">
           <div class="sidebar-header">
-            <h2>Control center</h2>
-            <p>Quick links</p>
+            <div>
+              <p class="eyebrow">Control center</p>
+              <h2>Quick links</h2>
+            </div>
+            <p class="meta">Stay on top of donor care and programs.</p>
           </div>
           <nav class="sidebar-nav">
             <button class="nav-item active" data-nav="dashboard">📊 Dashboard</button>
@@ -57,53 +69,114 @@
             <button class="nav-item" data-nav="donations">💝 Donations</button>
             <button class="nav-item" data-nav="requests">📨 Support requests</button>
           </nav>
+          <div class="sidebar-actions">
+            <button class="btn ghost" type="button">Data export</button>
+            <button class="btn ghost" type="button">Audit log</button>
+          </div>
         </aside>
 
         <section class="workspace">
           <section class="panel" data-section="dashboard">
             <div class="toolbar">
               <div>
+                <p class="eyebrow">Live telemetry</p>
                 <h2>Operational snapshot</h2>
                 <p>Live data pulled from Firebase. Refresh after large batches or imports.</p>
               </div>
-              <button class="btn" id="refresh" type="button">Refresh data</button>
+              <div class="toolbar-actions">
+                <button class="btn ghost" type="button">Schedule digest</button>
+                <button class="btn" id="refresh" type="button">Refresh data</button>
+              </div>
             </div>
             <p class="error" id="data-error" role="alert"></p>
             <div class="metrics">
-              <article>
-                <p class="label">Total donations (recent)</p>
+              <article class="stat">
+                <div class="stat-meta">
+                  <span class="chip soft">Donor pipeline</span>
+                  <p class="label">Total donations (recent)</p>
+                </div>
                 <p class="value" id="metric-donations">—</p>
+                <p class="hint">Aggregates Stripe checkouts and manual pledges.</p>
               </article>
-              <article>
-                <p class="label">Wish list progress</p>
+              <article class="stat">
+                <div class="stat-meta">
+                  <span class="chip soft">Impact store</span>
+                  <p class="label">Wish list progress</p>
+                </div>
                 <p class="value" id="metric-wishlist">—</p>
+                <p class="hint">Quantity funded versus quantity needed.</p>
               </article>
-              <article>
-                <p class="label">Open support requests</p>
+              <article class="stat">
+                <div class="stat-meta">
+                  <span class="chip soft">Community care</span>
+                  <p class="label">Open support requests</p>
+                </div>
                 <p class="value" id="metric-requests">—</p>
+                <p class="hint">Form submissions awaiting triage.</p>
               </article>
             </div>
+
             <div class="grid">
-              <section>
+              <section class="card-block">
                 <header>
-                  <h3>Latest donations</h3>
+                  <div>
+                    <p class="eyebrow">Funding velocity</p>
+                    <h3>Latest donations</h3>
+                  </div>
                   <span id="donations-count" class="badge">0</span>
                 </header>
                 <ul class="list" id="donations-list"></ul>
               </section>
-              <section>
+              <section class="card-block">
                 <header>
-                  <h3>Wish list inventory</h3>
+                  <div>
+                    <p class="eyebrow">Storefront</p>
+                    <h3>Wish list inventory</h3>
+                  </div>
                   <span id="wishlist-count" class="badge">0</span>
                 </header>
                 <ul class="list" id="wishlist-list"></ul>
               </section>
-              <section>
+              <section class="card-block">
                 <header>
-                  <h3>Support requests</h3>
+                  <div>
+                    <p class="eyebrow">Care desk</p>
+                    <h3>Support requests</h3>
+                  </div>
                   <span id="requests-count" class="badge">0</span>
                 </header>
                 <ul class="list" id="requests-list"></ul>
+              </section>
+            </div>
+
+            <div class="grid two-up">
+              <section class="card-block">
+                <header>
+                  <div>
+                    <p class="eyebrow">Engagement</p>
+                    <h3>Newsletter &amp; donor pipeline</h3>
+                    <p class="hint">Use this space to mirror the main-site signup funnel and donor lifecycle.</p>
+                  </div>
+                </header>
+                <ul class="list muted">
+                  <li><strong>Subscribers</strong><br /><small>Syncs from public site newsletter form. Plug into Firestore or your ESP.</small></li>
+                  <li><strong>Donor cohorts</strong><br /><small>Tag major gifts, recurring pledges, and lapsed donors for follow-up.</small></li>
+                  <li><strong>Automation ideas</strong><br /><small>Export to CSV, trigger stewardship emails, or push tasks to your team’s tools.</small></li>
+                </ul>
+              </section>
+              <section class="card-block">
+                <header>
+                  <div>
+                    <p class="eyebrow">Programs</p>
+                    <h3>Active initiatives</h3>
+                    <p class="hint">Keep the CRM aligned with the public-facing program pages.</p>
+                  </div>
+                </header>
+                <ul class="list muted">
+                  <li><strong>Community Pantry</strong><br /><small>Track inventory partners, volunteer shifts, and related wish list items.</small></li>
+                  <li><strong>Emergency Relief</strong><br /><small>Bundle incoming donations to rapid-response needs and relief cohorts.</small></li>
+                  <li><strong>Education &amp; Advocacy</strong><br /><small>Log outreach, training sessions, and supporter momentum.</small></li>
+                </ul>
               </section>
             </div>
           </section>
@@ -111,6 +184,7 @@
           <section class="panel" data-section="wishlist">
             <header class="panel-header">
               <div>
+                <p class="eyebrow">Storefront</p>
                 <h2>Wish list manager</h2>
                 <p>Add new items, track quantity funded, and keep the storefront updated.</p>
               </div>
@@ -155,6 +229,7 @@
           <section class="panel" data-section="donations">
             <header class="panel-header">
               <div>
+                <p class="eyebrow">Funding</p>
                 <h2>Donation feed</h2>
                 <p>Recent Stripe checkouts and manual entries.</p>
               </div>
@@ -167,6 +242,7 @@
           <section class="panel" data-section="requests">
             <header class="panel-header">
               <div>
+                <p class="eyebrow">Community care</p>
                 <h2>Support &amp; hotline requests</h2>
                 <p>Track outreach forms captured via the public site.</p>
               </div>
