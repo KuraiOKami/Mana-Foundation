@@ -88,6 +88,72 @@
           <ul class="list" id="requests-list"></ul>
         </section>
       </div>
+
+      <section class="crm">
+        <header class="crm-header">
+          <div>
+            <p class="eyebrow">CRM workspace</p>
+            <h2>Relationships &amp; cases</h2>
+            <p>Track donors, partners, and urgent household requests in one place.</p>
+          </div>
+          <div class="crm-actions">
+            <button class="btn ghost" type="button" disabled>Filter board</button>
+            <button class="btn" type="button" disabled>Log activity</button>
+          </div>
+        </header>
+
+        <div class="crm-board">
+          <article class="crm-column">
+            <header>
+              <div>
+                <h3>Prospects</h3>
+                <p>Warm leads, grants, and new partners.</p>
+              </div>
+              <span class="badge" id="crm-prospects-count">0</span>
+            </header>
+            <ul class="crm-list" id="crm-prospects"></ul>
+          </article>
+
+          <article class="crm-column">
+            <header>
+              <div>
+                <h3>Nurturing</h3>
+                <p>Conversations in motion.</p>
+              </div>
+              <span class="badge" id="crm-nurturing-count">0</span>
+            </header>
+            <ul class="crm-list" id="crm-nurturing"></ul>
+          </article>
+
+          <article class="crm-column">
+            <header>
+              <div>
+                <h3>Champions</h3>
+                <p>Recurring donors + key partners.</p>
+              </div>
+              <span class="badge" id="crm-champions-count">0</span>
+            </header>
+            <ul class="crm-list" id="crm-champions"></ul>
+          </article>
+        </div>
+
+        <div class="crm-panels">
+          <article>
+            <header>
+              <h3>Active cases</h3>
+              <span class="badge" id="crm-cases-count">0</span>
+            </header>
+            <ul class="crm-list" id="crm-cases"></ul>
+          </article>
+          <article>
+            <header>
+              <h3>Wish list tasks</h3>
+              <span class="badge" id="crm-tasks-count">0</span>
+            </header>
+            <ul class="crm-list" id="crm-tasks"></ul>
+          </article>
+        </div>
+      </section>
     </section>
   </main>
 
