@@ -47,24 +47,39 @@
     <section class="app-frame" data-view="app">
       <div class="admin-layout">
         <aside class="sidebar">
-          <div class="sidebar-header">
-            <h2>Control center</h2>
-            <p>Quick links</p>
-          </div>
-          <nav class="sidebar-nav">
-            <button class="nav-item active" data-nav="dashboard">📊 Dashboard</button>
-            <button class="nav-item" data-nav="wishlist">🧾 Wish list</button>
-            <button class="nav-item" data-nav="donations">💝 Donations</button>
-            <button class="nav-item" data-nav="requests">📨 Support requests</button>
-          </nav>
-        </aside>
+      <div class="sidebar-header">
+        <h2>Control center</h2>
+        <p>Quick links</p>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-nav="dashboard">📊 Dashboard</button>
+        <button class="nav-item" data-nav="donors">👥 Donors CRM</button>
+        <button class="nav-item" data-nav="communications">✉️ Communications</button>
+        <button class="nav-item" data-nav="projects">🧭 Projects</button>
+        <button class="nav-item" data-nav="wishlist">🧾 Wish list</button>
+        <button class="nav-item" data-nav="donations">💝 Donations</button>
+        <button class="nav-item" data-nav="requests">📨 Support requests</button>
+      </nav>
+    </aside>
 
-        <section class="workspace">
-          <section class="panel" data-section="dashboard">
-            <div class="toolbar">
-              <div>
-                <h2>Operational snapshot</h2>
-                <p>Live data pulled from Firebase. Refresh after large batches or imports.</p>
+    <section class="workspace">
+      <div class="command-bar">
+        <label class="search">
+          <span>Command bar / search</span>
+          <input type="search" id="global-search" placeholder="Search donors, projects, or notes" />
+        </label>
+        <div class="quick-actions">
+          <button class="btn ghost" id="quick-add-donor" type="button">+ New donor</button>
+          <button class="btn ghost" id="quick-add-project" type="button">+ New project</button>
+          <button class="btn ghost" id="quick-add-message" type="button">Send update</button>
+        </div>
+      </div>
+
+      <section class="panel" data-section="dashboard">
+        <div class="toolbar">
+          <div>
+            <h2>Operational snapshot</h2>
+            <p>Live data pulled from Firebase. Refresh after large batches or imports.</p>
               </div>
               <button class="btn" id="refresh" type="button">Refresh data</button>
             </div>
@@ -105,6 +120,166 @@
                 </header>
                 <ul class="list" id="requests-list"></ul>
               </section>
+            </div>
+          </section>
+
+          <section class="panel" data-section="donors">
+            <header class="panel-header">
+              <div>
+                <h2>Donors CRM</h2>
+                <p>Track every supporter, lifetime value, notes, and segments.</p>
+              </div>
+              <div class="stacked">
+                <label class="search compact">
+                  <span>Search donors</span>
+                  <input type="search" id="donor-search" placeholder="Search by name, email, or tags" />
+                </label>
+                <p class="hint">Data source: Firestore collection <code>donors</code>. Add new donors manually or via imports.</p>
+              </div>
+            </header>
+
+            <div class="panel-body two-column">
+              <form id="donor-form">
+                <h3>Create donor</h3>
+                <label>
+                  Full name
+                  <input type="text" name="name" placeholder="Jordan Lee" required />
+                </label>
+                <label>
+                  Email
+                  <input type="email" name="email" placeholder="donor@email.com" required />
+                </label>
+                <label>
+                  Phone
+                  <input type="tel" name="phone" placeholder="+1 415 555 1234" />
+                </label>
+                <label>
+                  Tier
+                  <select name="tier">
+                    <option value="general">General</option>
+                    <option value="recurring">Recurring</option>
+                    <option value="major">Major donor</option>
+                    <option value="corporate">Corporate</option>
+                  </select>
+                </label>
+                <label>
+                  Source
+                  <input type="text" name="source" placeholder="Gala, Referral, LinkedIn" />
+                </label>
+                <label>
+                  Tags
+                  <input type="text" name="tags" placeholder="health, education, local" />
+                </label>
+                <label>
+                  Notes
+                  <textarea name="notes" rows="3" placeholder="Important context, pledge details, or follow-ups"></textarea>
+                </label>
+                <button class="btn" type="submit">Save donor</button>
+                <p class="status" id="donor-status"></p>
+              </form>
+
+              <div class="table" id="donor-table">
+                <p class="placeholder">Loading donors…</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" data-section="communications">
+            <header class="panel-header">
+              <div>
+                <h2>Communications</h2>
+                <p>Send updates to segments and keep a log of outbound contact.</p>
+              </div>
+            </header>
+            <div class="panel-body two-column">
+              <form id="message-form">
+                <h3>Compose update</h3>
+                <label>
+                  Subject
+                  <input type="text" name="subject" placeholder="Community pantry update" required />
+                </label>
+                <label>
+                  Segment
+                  <select name="segment">
+                    <option value="all">All donors</option>
+                    <option value="recurring">Recurring donors</option>
+                    <option value="major">Major donors</option>
+                    <option value="corporate">Corporate partners</option>
+                  </select>
+                </label>
+                <label>
+                  Channel
+                  <select name="channel">
+                    <option value="email">Email</option>
+                    <option value="sms">SMS</option>
+                    <option value="phone">Phone call</option>
+                  </select>
+                </label>
+                <label>
+                  Message
+                  <textarea name="body" rows="4" placeholder="Short update or call-to-action" required></textarea>
+                </label>
+                <label>
+                  Send date
+                  <input type="date" name="sendDate" />
+                </label>
+                <button class="btn" type="submit">Queue update</button>
+                <p class="status" id="message-status"></p>
+              </form>
+
+              <div class="table" id="messages-table">
+                <p class="placeholder">Loading communications log…</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" data-section="projects">
+            <header class="panel-header">
+              <div>
+                <h2>Projects &amp; campaigns</h2>
+                <p>See pipeline, owners, and budgets for active initiatives.</p>
+              </div>
+            </header>
+            <div class="panel-body two-column">
+              <form id="project-form">
+                <h3>New project</h3>
+                <label>
+                  Title
+                  <input type="text" name="title" placeholder="Food security expansion" required />
+                </label>
+                <label>
+                  Owner
+                  <input type="text" name="owner" placeholder="Program lead" />
+                </label>
+                <label>
+                  Stage
+                  <select name="stage">
+                    <option value="intake">Intake</option>
+                    <option value="planning">Planning</option>
+                    <option value="active">Active</option>
+                    <option value="blocked">Blocked</option>
+                    <option value="complete">Complete</option>
+                  </select>
+                </label>
+                <label>
+                  Budget (USD)
+                  <input type="number" name="budget" min="0" step="100" placeholder="25000" />
+                </label>
+                <label>
+                  Target date
+                  <input type="date" name="targetDate" />
+                </label>
+                <label>
+                  Notes
+                  <textarea name="notes" rows="3" placeholder="Dependencies, partners, milestones"></textarea>
+                </label>
+                <button class="btn" type="submit">Add project</button>
+                <p class="status" id="project-status"></p>
+              </form>
+
+              <div class="table" id="projects-table">
+                <p class="placeholder">Loading projects…</p>
+              </div>
             </div>
           </section>
 

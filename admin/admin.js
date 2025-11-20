@@ -50,6 +50,24 @@ const requestsList = document.getElementById('requests-list');
 const requestsCount = document.getElementById('requests-count');
 const requestsTable = document.getElementById('requests-table');
 
+const globalSearch = document.getElementById('global-search');
+const quickAddDonor = document.getElementById('quick-add-donor');
+const quickAddProject = document.getElementById('quick-add-project');
+const quickAddMessage = document.getElementById('quick-add-message');
+
+const donorForm = document.getElementById('donor-form');
+const donorStatus = document.getElementById('donor-status');
+const donorTable = document.getElementById('donor-table');
+const donorSearch = document.getElementById('donor-search');
+
+const messageForm = document.getElementById('message-form');
+const messageStatus = document.getElementById('message-status');
+const messagesTable = document.getElementById('messages-table');
+
+const projectForm = document.getElementById('project-form');
+const projectStatus = document.getElementById('project-status');
+const projectsTable = document.getElementById('projects-table');
+
 const fmtCurrency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 const fmtDate = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' });
 
@@ -67,7 +85,14 @@ setPersistence(auth, browserLocalPersistence).catch(() => {});
 const state = {
   donations: [],
   wishlist: [],
-  requests: []
+  requests: [],
+  donors: [],
+  projects: [],
+  messages: [],
+  filters: {
+    global: '',
+    donor: ''
+  }
 };
 
 const loginForm = document.getElementById('login-form');
@@ -93,6 +118,32 @@ navButtons.forEach((button) =>
     setActivePanel(button.dataset.nav);
   })
 );
+
+globalSearch?.addEventListener('input', (event) => {
+  state.filters.global = event.target.value || '';
+  renderDonorTable();
+  renderProjectsTable();
+});
+
+donorSearch?.addEventListener('input', (event) => {
+  state.filters.donor = event.target.value || '';
+  renderDonorTable();
+});
+
+quickAddDonor?.addEventListener('click', () => {
+  setActivePanel('donors');
+  donorForm?.querySelector('input[name="name"]')?.focus();
+});
+
+quickAddProject?.addEventListener('click', () => {
+  setActivePanel('projects');
+  projectForm?.querySelector('input[name="title"]')?.focus();
+});
+
+quickAddMessage?.addEventListener('click', () => {
+  setActivePanel('communications');
+  messageForm?.querySelector('input[name="subject"]')?.focus();
+});
 
 wishlistForm.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -120,6 +171,104 @@ wishlistForm.addEventListener('submit', async (event) => {
   } catch (error) {
     console.error(error);
     wishlistStatus.textContent = 'Unable to add item. Check Firestore permissions.';
+  }
+});
+
+donorForm?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  donorStatus.textContent = '';
+  if (!auth.currentUser) {
+    donorStatus.textContent = 'Sign in required.';
+    return;
+  }
+  const formData = new FormData(donorForm);
+  const payload = {
+    name: formData.get('name')?.trim(),
+    email: formData.get('email')?.trim(),
+    phone: formData.get('phone')?.trim() || '',
+    tier: formData.get('tier') || 'general',
+    source: formData.get('source')?.trim() || '',
+    tags: parseTags(formData.get('tags')),
+    notes: formData.get('notes')?.trim() || '',
+    lastContacted: serverTimestamp(),
+    createdAt: serverTimestamp()
+  };
+  if (!payload.name || !payload.email) {
+    donorStatus.textContent = 'Name and email are required.';
+    return;
+  }
+  try {
+    await addDoc(collection(db, 'donors'), payload);
+    donorForm.reset();
+    donorStatus.textContent = '✅ Donor saved';
+    refreshData();
+  } catch (error) {
+    console.error(error);
+    donorStatus.textContent = 'Unable to save donor. Check Firestore permissions.';
+  }
+});
+
+messageForm?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  messageStatus.textContent = '';
+  if (!auth.currentUser) {
+    messageStatus.textContent = 'Sign in required.';
+    return;
+  }
+  const formData = new FormData(messageForm);
+  const payload = {
+    subject: formData.get('subject')?.trim(),
+    segment: formData.get('segment'),
+    channel: formData.get('channel'),
+    body: formData.get('body')?.trim(),
+    sendDate: formData.get('sendDate') || '',
+    status: 'queued',
+    createdAt: serverTimestamp()
+  };
+  if (!payload.subject || !payload.body) {
+    messageStatus.textContent = 'Subject and message are required.';
+    return;
+  }
+  try {
+    await addDoc(collection(db, 'communications'), payload);
+    messageForm.reset();
+    messageStatus.textContent = '✅ Update queued';
+    refreshData();
+  } catch (error) {
+    console.error(error);
+    messageStatus.textContent = 'Unable to queue message.';
+  }
+});
+
+projectForm?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  projectStatus.textContent = '';
+  if (!auth.currentUser) {
+    projectStatus.textContent = 'Sign in required.';
+    return;
+  }
+  const formData = new FormData(projectForm);
+  const payload = {
+    title: formData.get('title')?.trim(),
+    owner: formData.get('owner')?.trim() || 'Unassigned',
+    stage: formData.get('stage') || 'intake',
+    budget: Number(formData.get('budget')) || 0,
+    targetDate: formData.get('targetDate') || '',
+    notes: formData.get('notes')?.trim() || '',
+    createdAt: serverTimestamp()
+  };
+  if (!payload.title) {
+    projectStatus.textContent = 'Title is required.';
+    return;
+  }
+  try {
+    await addDoc(collection(db, 'projects'), payload);
+    projectForm.reset();
+    projectStatus.textContent = '✅ Project added';
+    refreshData();
+  } catch (error) {
+    console.error(error);
+    projectStatus.textContent = 'Unable to save project.';
   }
 });
 
@@ -160,6 +309,9 @@ function clearUI() {
   donationsCount.textContent = '0';
   wishlistCount.textContent = '0';
   requestsCount.textContent = '0';
+  donorTable.innerHTML = '<p class="placeholder">Sign in to manage donors.</p>';
+  messagesTable.innerHTML = '<p class="placeholder">Sign in to manage communications.</p>';
+  projectsTable.innerHTML = '<p class="placeholder">Sign in to manage projects.</p>';
 }
 
 async function refreshData() {
@@ -167,18 +319,27 @@ async function refreshData() {
   setLoading(true);
   dataErrorEl.textContent = '';
   try {
-    const [donations, wishlist, requests] = await Promise.all([
+    const [donations, wishlist, requests, donors, projects, messages] = await Promise.all([
       fetchCollection('donations', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 12 }),
       fetchCollection('wishlistItems', { orderByField: 'title' }),
-      fetchCollection('supportRequests', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 12 })
+      fetchCollection('supportRequests', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 12 }),
+      fetchCollection('donors', { orderByField: 'name' }),
+      fetchCollection('projects', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 50 }),
+      fetchCollection('communications', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 50 })
     ]);
     state.donations = donations;
     state.wishlist = wishlist;
     state.requests = requests;
+    state.donors = donors;
+    state.projects = projects;
+    state.messages = messages;
     renderDashboard(donations, wishlist, requests);
     renderWishlistManager();
     renderDonationsTable();
     renderRequestsTable();
+    renderDonorTable();
+    renderProjectsTable();
+    renderMessagesTable();
   } catch (error) {
     console.error(error);
     dataErrorEl.textContent = 'Unable to load data. Check Firestore rules or network.';
@@ -344,6 +505,105 @@ function renderRequestsTable() {
     .join('');
 }
 
+function renderDonorTable() {
+  let rows = state.donors;
+  const donorTerm = (state.filters.donor || '').trim().toLowerCase();
+  const globalTerm = (state.filters.global || '').trim().toLowerCase();
+  if (donorTerm) rows = filterBySearch(rows, donorTerm);
+  if (globalTerm) rows = filterBySearch(rows, globalTerm);
+  if (!rows.length) {
+    donorTable.innerHTML = '<p class="placeholder">No donors found.</p>';
+    return;
+  }
+  donorTable.innerHTML = rows
+    .map((row) => {
+      const name = row.name || 'Unnamed donor';
+      const email = row.email || '—';
+      const tier = row.tier || 'general';
+      const tags = Array.isArray(row.tags) ? row.tags.join(', ') : row.tags || '';
+      const lastGift = row.lastGiftAmount ? fmtCurrency.format(row.lastGiftAmount) : '—';
+      const lastContact = renderDate(row.lastContacted || row.createdAt);
+      return `
+        <div class="row donor">
+          <div>
+            <strong>${name}</strong>
+            <small>${email}</small>
+            <small>${tags || 'No tags'}</small>
+          </div>
+          <div class="badge secondary">${tier}</div>
+          <div>
+            <strong>${lastGift}</strong>
+            <small>Last contact: ${lastContact}</small>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+}
+
+function renderProjectsTable() {
+  const rows = state.projects;
+  const term = (state.filters.global || '').trim().toLowerCase();
+  const filtered = term ? rows.filter((row) => textMatch(row.title, term) || textMatch(row.notes, term)) : rows;
+  if (!filtered.length) {
+    projectsTable.innerHTML = '<p class="placeholder">No projects logged.</p>';
+    return;
+  }
+  projectsTable.innerHTML = filtered
+    .map((row) => {
+      const stage = row.stage || 'intake';
+      const owner = row.owner || 'Unassigned';
+      const budget = row.budget ? fmtCurrency.format(row.budget) : '—';
+      const target = row.targetDate || '—';
+      const created = renderDate(row.createdAt);
+      return `
+        <div class="row project">
+          <div>
+            <strong>${row.title || 'Untitled project'}</strong>
+            <small>${owner} · Stage: ${stage}</small>
+            <small>Created ${created}</small>
+          </div>
+          <div>
+            <strong>${budget}</strong>
+            <small>Target: ${target}</small>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+}
+
+function renderMessagesTable() {
+  const rows = state.messages;
+  if (!rows.length) {
+    messagesTable.innerHTML = '<p class="placeholder">No communications logged.</p>';
+    return;
+  }
+  messagesTable.innerHTML = rows
+    .map((row) => {
+      const subject = row.subject || 'Untitled';
+      const channel = row.channel || 'email';
+      const segment = row.segment || 'all';
+      const status = row.status || 'queued';
+      const sendDate = row.sendDate || 'Asap';
+      const created = renderDate(row.createdAt);
+      return `
+        <div class="row message">
+          <div>
+            <strong>${subject}</strong>
+            <small>${channel.toUpperCase()} · Segment: ${segment}</small>
+            <small>Created ${created}</small>
+          </div>
+          <div>
+            <strong>${status}</strong>
+            <small>Send: ${sendDate}</small>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+}
+
 function renderDate(timestamp) {
   if (!timestamp) return '—';
   if (typeof timestamp.toDate === 'function') {
@@ -364,4 +624,32 @@ function progressPercent(row) {
 function setLoading(isLoading) {
   refreshBtn.disabled = isLoading;
   refreshBtn.textContent = isLoading ? 'Refreshing…' : 'Refresh data';
+}
+
+function parseTags(value) {
+  if (!value) return [];
+  return value
+    .split(',')
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
+function filterBySearch(rows, term) {
+  if (!term) return rows;
+  return rows.filter((row) => {
+    return (
+      textMatch(row.name, term) ||
+      textMatch(row.email, term) ||
+      textMatch(row.tags, term) ||
+      textMatch(row.notes, term) ||
+      textMatch(row.tier, term) ||
+      textMatch(row.source, term)
+    );
+  });
+}
+
+function textMatch(field, term) {
+  if (!field) return false;
+  if (Array.isArray(field)) return field.some((entry) => textMatch(entry, term));
+  return String(field).toLowerCase().includes(term);
 }

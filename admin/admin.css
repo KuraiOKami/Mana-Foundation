@@ -1,7 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 :root {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #f6f7fb;
+  font-family: 'Space Grotesk', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0f172a;
   color: #0e1624;
+  --ink: #0f172a;
+  --muted: rgba(15, 23, 42, 0.7);
+  --panel: #0f172a;
+  --card: #ffffff;
+  --accent: #0ea5e9;
+  --accent-strong: #0284c7;
+  --border: rgba(15, 23, 42, 0.12);
+  --shadow: 0 35px 80px rgba(15, 23, 42, 0.12);
 }
 
 * {
@@ -11,7 +21,9 @@
 body {
   margin: 0;
   padding: 2rem clamp(1rem, 4vw, 3rem) 3rem;
-  background: #f6f7fb;
+  background: radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.2), transparent 30%),
+    radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.15), transparent 35%),
+    #0f172a;
   min-height: 100vh;
 }
 
@@ -29,17 +41,23 @@ body {
   align-items: flex-start;
   gap: 2rem;
   flex-wrap: wrap;
+  color: white;
+}
+
+.branding h1 {
+  margin: 0.25rem 0;
+  color: #e2e8f0;
 }
 
 .eyebrow {
   letter-spacing: 0.2em;
   text-transform: uppercase;
   font-size: 0.75rem;
-  color: rgba(14, 22, 36, 0.6);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .lede {
-  color: rgba(14, 22, 36, 0.75);
+  color: rgba(255, 255, 255, 0.8);
   max-width: 520px;
 }
 
@@ -76,8 +94,8 @@ body {
   background: white;
   border-radius: 1.5rem;
   padding: 2rem;
-  border: 1px solid rgba(14, 22, 36, 0.08);
-  box-shadow: 0 35px 65px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: var(--shadow);
 }
 
 .card form {
@@ -93,12 +111,14 @@ label {
 }
 
 input,
-textarea {
+textarea,
+select {
   padding: 0.85rem 1rem;
   border-radius: 0.85rem;
   border: 1px solid rgba(14, 22, 36, 0.15);
   font: inherit;
   width: 100%;
+  background: #f8fafc;
 }
 
 textarea {
@@ -114,15 +134,15 @@ textarea {
   border: none;
   font-weight: 600;
   cursor: pointer;
-  background: #1341f0;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: white;
-  box-shadow: 0 12px 30px rgba(19, 65, 240, 0.25);
+  box-shadow: 0 12px 30px rgba(14, 165, 233, 0.3);
 }
 
 .btn.ghost {
   background: transparent;
-  color: #1341f0;
-  border: 1px solid rgba(19, 65, 240, 0.4);
+  color: var(--accent-strong);
+  border: 1px solid rgba(14, 165, 233, 0.4);
   box-shadow: none;
 }
 
@@ -149,7 +169,7 @@ textarea {
 }
 
 .sidebar {
-  border: 1px solid rgba(14, 22, 36, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1.5rem;
   padding: 1.25rem;
   background: #0e1624;
@@ -181,18 +201,72 @@ textarea {
   font-size: 0.95rem;
   text-align: left;
   cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
 .nav-item.active {
-  background: white;
-  color: #0e1624;
+  background: #e0f2fe;
+  color: #0f172a;
   font-weight: 600;
+  transform: translateY(-1px);
 }
 
 .workspace {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.command-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background: linear-gradient(120deg, #e0f2fe, #ffffff);
+}
+
+.search {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 260px;
+}
+
+.search span {
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.search input {
+  border-radius: 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  background: white;
+}
+
+.search.compact input {
+  padding: 0.65rem 0.75rem;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.stacked {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .panel {
@@ -226,10 +300,10 @@ textarea {
 }
 
 .metrics article {
-  border: 1px solid rgba(14, 22, 36, 0.1);
+  border: 1px solid rgba(14, 22, 36, 0.08);
   border-radius: 1rem;
   padding: 1rem 1.25rem;
-  background: #f7f9ff;
+  background: linear-gradient(135deg, #e0f2fe, #ffffff);
 }
 
 .metrics .label {
@@ -323,6 +397,21 @@ textarea {
 
 .table strong {
   display: block;
+}
+
+.table .row.donor {
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+}
+
+.table .row.project,
+.table .row.message {
+  grid-template-columns: 1fr auto;
+}
+
+.badge.secondary {
+  background: rgba(14, 165, 233, 0.15);
+  color: #075985;
 }
 
 .status {
