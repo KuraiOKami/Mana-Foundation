@@ -84,20 +84,52 @@
               <button class="btn" id="refresh" type="button">Refresh data</button>
             </div>
             <p class="error" id="data-error" role="alert"></p>
-            <div class="metrics">
+            <div class="metrics kpis">
               <article>
-                <p class="label">Total donations (recent)</p>
-                <p class="value" id="metric-donations">—</p>
+                <p class="label">Total donors</p>
+                <p class="value" id="metric-donors">—</p>
               </article>
               <article>
-                <p class="label">Wish list progress</p>
-                <p class="value" id="metric-wishlist">—</p>
+                <p class="label">Recurring donors</p>
+                <p class="value" id="metric-recurring">—</p>
+              </article>
+              <article>
+                <p class="label">Donations (30d)</p>
+                <p class="value" id="metric-donations">—</p>
               </article>
               <article>
                 <p class="label">Open support requests</p>
                 <p class="value" id="metric-requests">—</p>
               </article>
             </div>
+
+            <div class="charts">
+              <div class="card-lite">
+                <div class="chart-header">
+                  <h3>Monthly donations</h3>
+                  <p class="muted">Last 6 months</p>
+                </div>
+                <canvas id="donations-chart" height="160"></canvas>
+              </div>
+              <div class="card-lite gauge">
+                <div>
+                  <h3>Wishlist progress</h3>
+                  <p class="muted">Funded vs needed</p>
+                </div>
+                <div class="gauge-wrapper">
+                  <div id="wishlist-gauge" class="radial"></div>
+                  <p class="value" id="metric-wishlist">—</p>
+                </div>
+              </div>
+              <div class="card-lite">
+                <div class="chart-header">
+                  <h3>Program activity</h3>
+                  <p class="muted">Stage distribution</p>
+                </div>
+                <ul class="list" id="program-activity"></ul>
+              </div>
+            </div>
+
             <div class="grid">
               <section>
                 <header>
@@ -108,10 +140,10 @@
               </section>
               <section>
                 <header>
-                  <h3>Wish list inventory</h3>
-                  <span id="wishlist-count" class="badge">0</span>
+                  <h3>Recent donor activity</h3>
+                  <span id="donor-activity-count" class="badge">0</span>
                 </header>
-                <ul class="list" id="wishlist-list"></ul>
+                <ul class="list" id="donor-activity-list"></ul>
               </section>
               <section>
                 <header>
@@ -167,6 +199,14 @@
                   <input type="text" name="source" placeholder="Gala, Referral, LinkedIn" />
                 </label>
                 <label>
+                  Contact preference
+                  <select name="contactPreference">
+                    <option value="email">Email</option>
+                    <option value="phone">Phone</option>
+                    <option value="sms">SMS</option>
+                  </select>
+                </label>
+                <label>
                   Tags
                   <input type="text" name="tags" placeholder="health, education, local" />
                 </label>
@@ -178,8 +218,17 @@
                 <p class="status" id="donor-status"></p>
               </form>
 
-              <div class="table" id="donor-table">
-                <p class="placeholder">Loading donors…</p>
+              <div class="stacked-column">
+                <div class="table" id="donor-table">
+                  <p class="placeholder">Loading donors…</p>
+                </div>
+                <div class="card-lite timeline">
+                  <div class="chart-header">
+                    <h3>Contact history</h3>
+                    <p class="muted">Emails, calls, notes</p>
+                  </div>
+                  <ul class="list" id="donor-timeline"></ul>
+                </div>
               </div>
             </div>
           </section>
@@ -208,6 +257,10 @@
                   </select>
                 </label>
                 <label>
+                  Related donor email (optional)
+                  <input type="email" name="relatedEmail" placeholder="match to donor profile" />
+                </label>
+                <label>
                   Channel
                   <select name="channel">
                     <option value="email">Email</option>
@@ -218,6 +271,10 @@
                 <label>
                   Message
                   <textarea name="body" rows="4" placeholder="Short update or call-to-action" required></textarea>
+                </label>
+                <label>
+                  Tags / reminder
+                  <input type="text" name="tags" placeholder="follow-up, Q4 campaign" />
                 </label>
                 <label>
                   Send date
@@ -297,6 +354,16 @@
                   <input type="text" name="program" placeholder="Community Pantry" required />
                 </label>
                 <label>
+                  Category
+                  <select name="category">
+                    <option value="general">General</option>
+                    <option value="food">Food</option>
+                    <option value="materials">Materials</option>
+                    <option value="beds">Beds</option>
+                    <option value="equipment">Equipment</option>
+                  </select>
+                </label>
+                <label>
                   Item title
                   <input type="text" name="title" placeholder="Refrigerated box truck" required />
                 </label>
@@ -307,6 +374,18 @@
                 <label>
                   Quantity needed
                   <input type="number" name="quantity" min="1" step="1" placeholder="2" required />
+                </label>
+                <label>
+                  Quantity funded
+                  <input type="number" name="quantityFunded" min="0" step="1" placeholder="0" />
+                </label>
+                <label>
+                  Priority
+                  <select name="priority">
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="low">Low</option>
+                  </select>
                 </label>
                 <label>
                   Image URL
@@ -334,8 +413,40 @@
                 <p>Recent Stripe checkouts and manual entries.</p>
               </div>
             </header>
-            <div class="table" id="donations-table">
-              <p class="placeholder">Loading donations…</p>
+            <div class="panel-body two-column">
+              <form id="donation-form">
+                <h3>Record donation</h3>
+                <label>
+                  Donor name
+                  <input type="text" name="donorName" placeholder="Alex Kim" />
+                </label>
+                <label>
+                  Email
+                  <input type="email" name="email" placeholder="donor@email.com" />
+                </label>
+                <label>
+                  Program
+                  <input type="text" name="program" placeholder="General" />
+                </label>
+                <label>
+                  Amount (USD)
+                  <input type="number" name="amount" min="0" step="0.01" placeholder="100" required />
+                </label>
+                <label>
+                  Source
+                  <select name="source">
+                    <option value="manual">Manual</option>
+                    <option value="stripe">Stripe</option>
+                    <option value="event">Event</option>
+                    <option value="corporate">Corporate</option>
+                  </select>
+                </label>
+                <button class="btn" type="submit">Add donation</button>
+                <p class="status" id="donation-status"></p>
+              </form>
+              <div class="table" id="donations-table">
+                <p class="placeholder">Loading donations…</p>
+              </div>
             </div>
           </section>
 

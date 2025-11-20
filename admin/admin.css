@@ -263,6 +263,14 @@ textarea {
   gap: 0.35rem;
 }
 
+.stacked-column {
+  display: grid;
+  gap: 1rem;
+}
+
+.timeline .list li {
+  background: #f8fafc;
+}
 .hint {
   margin: 0;
   color: var(--muted);
@@ -299,11 +307,68 @@ textarea {
   margin-bottom: 1.5rem;
 }
 
+.metrics.kpis article {
+  background: linear-gradient(145deg, #ffffff, #e9f5ff);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+}
+
 .metrics article {
   border: 1px solid rgba(14, 22, 36, 0.08);
   border-radius: 1rem;
   padding: 1rem 1.25rem;
   background: linear-gradient(135deg, #e0f2fe, #ffffff);
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.card-lite {
+  border: 1px solid rgba(14, 22, 36, 0.08);
+  border-radius: 1rem;
+  padding: 1rem;
+  background: #ffffff;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05);
+}
+
+.card-lite.gauge {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  align-items: center;
+  gap: 1rem;
+}
+
+.gauge-wrapper {
+  display: grid;
+  place-items: center;
+}
+
+.radial {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: conic-gradient(#0ea5e9 0deg, #e2e8f0 0deg);
+  position: relative;
+}
+
+.radial::after {
+  content: '';
+  position: absolute;
+  inset: 18px;
+  background: #ffffff;
+  border-radius: 50%;
+}
+
+.chart-header h3 {
+  margin: 0;
+}
+
+.muted {
+  margin: 0;
+  color: var(--muted);
 }
 
 .metrics .label {
@@ -389,6 +454,7 @@ textarea {
   gap: 0.5rem;
   padding: 0.75rem 0;
   border-bottom: 1px solid rgba(14, 22, 36, 0.08);
+  align-items: center;
 }
 
 .table .row:last-child {
@@ -399,14 +465,39 @@ textarea {
   display: block;
 }
 
+.table .row > div:first-child {
+  background: #f8fafc;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.75rem;
+}
+
+.row-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.link {
+  border: none;
+  background: none;
+  color: #0ea5e9;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.1rem 0.25rem;
+}
+
+.link.danger {
+  color: #b91c1c;
+}
+
 .table .row.donor {
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto auto auto;
   align-items: center;
 }
 
 .table .row.project,
 .table .row.message {
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
 }
 
 .badge.secondary {
