@@ -833,7 +833,8 @@ function renderDonorTable() {
   if (donorTerm) rows = filterBySearch(rows, donorTerm);
   if (globalTerm) rows = filterBySearch(rows, globalTerm);
   if (!rows.length) {
-    donorTable.innerHTML = '<p class="placeholder">No donors found.</p>';
+    donorTable.innerHTML =
+      '<p class="placeholder">No donors yet. Records are created automatically when gifts come through the donation link.</p>';
     return;
   }
   donorTable.innerHTML = rows
@@ -855,10 +856,6 @@ function renderDonorTable() {
           <div>
             <strong>${lastGift}</strong>
             <small>Last contact: ${lastContact}</small>
-          </div>
-          <div class="row-actions">
-            <button class="link" data-action="edit-donor" data-id="${row.id}">Edit</button>
-            <button class="link danger" data-action="delete-donor" data-id="${row.id}">Delete</button>
           </div>
         </div>
       `;

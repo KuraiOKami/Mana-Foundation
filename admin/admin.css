@@ -477,6 +477,20 @@ textarea {
   gap: 1.5rem;
 }
 
+.donors-readonly {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.read-only-note {
+  border: 1px dashed rgba(115, 103, 240, 0.35);
+  background: #f8f7ff;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
 .table {
   border: 1px solid var(--border);
   border-radius: 1rem;

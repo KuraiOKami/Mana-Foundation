@@ -69,7 +69,6 @@
           <input type="search" id="global-search" placeholder="Search donors, projects, or notes" />
         </label>
         <div class="quick-actions">
-          <button class="btn ghost" id="quick-add-donor" type="button">+ New donor</button>
           <button class="btn ghost" id="quick-add-project" type="button">+ New project</button>
           <button class="btn ghost" id="quick-add-message" type="button">Send update</button>
         </div>
@@ -166,69 +165,20 @@
                   <span>Search donors</span>
                   <input type="search" id="donor-search" placeholder="Search by name, email, or tags" />
                 </label>
-                <p class="hint">Data source: Firestore collection <code>donors</code>. Add new donors manually or via imports.</p>
+                <p class="hint">Data source: Firestore collection <code>donors</code>. Records are created automatically from the public donation flow.</p>
               </div>
             </header>
 
-            <div class="panel-body two-column">
-              <form id="donor-form">
-                <h3>Create donor</h3>
-                <label>
-                  Full name
-                  <input type="text" name="name" placeholder="Jordan Lee" required />
-                </label>
-                <label>
-                  Email
-                  <input type="email" name="email" placeholder="donor@email.com" required />
-                </label>
-                <label>
-                  Phone
-                  <input type="tel" name="phone" placeholder="+1 415 555 1234" />
-                </label>
-                <label>
-                  Tier
-                  <select name="tier">
-                    <option value="general">General</option>
-                    <option value="recurring">Recurring</option>
-                    <option value="major">Major donor</option>
-                    <option value="corporate">Corporate</option>
-                  </select>
-                </label>
-                <label>
-                  Source
-                  <input type="text" name="source" placeholder="Gala, Referral, LinkedIn" />
-                </label>
-                <label>
-                  Contact preference
-                  <select name="contactPreference">
-                    <option value="email">Email</option>
-                    <option value="phone">Phone</option>
-                    <option value="sms">SMS</option>
-                  </select>
-                </label>
-                <label>
-                  Tags
-                  <input type="text" name="tags" placeholder="health, education, local" />
-                </label>
-                <label>
-                  Notes
-                  <textarea name="notes" rows="3" placeholder="Important context, pledge details, or follow-ups"></textarea>
-                </label>
-                <button class="btn" type="submit">Save donor</button>
-                <p class="status" id="donor-status"></p>
-              </form>
-
-              <div class="stacked-column">
-                <div class="table" id="donor-table">
-                  <p class="placeholder">Loading donors…</p>
-                </div>
-                <div class="card-lite timeline">
-                  <div class="chart-header">
-                    <h3>Contact history</h3>
-                    <p class="muted">Emails, calls, notes</p>
-                  </div>
-                  <ul class="list" id="donor-timeline"></ul>
-                </div>
+            <div class="panel-body donors-readonly">
+              <div class="read-only-note">
+                <h3>Donors are created automatically</h3>
+                <p class="muted">
+                  Donors sync from the public donation flow. Manual creation in the admin is disabled to keep records
+                  ethical and audit-friendly.
+                </p>
+              </div>
+              <div class="table" id="donor-table">
+                <p class="placeholder">Loading donors…</p>
               </div>
             </div>
           </section>
