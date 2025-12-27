@@ -2,8 +2,60 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
+
+    // Public read access for wishlist items (public storefront)
+    match /wishlistItems/{itemId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Public read access for events (public calendar)
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Donations: admin read/write, server creates via webhook
+    match /donations/{donationId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Orders: admin only
+    match /orders/{orderId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Vendor configs: admin only
+    match /vendorConfigs/{vendorId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Overfunding tracking: admin only
+    match /overfunding/{docId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Donors: admin only
+    match /donors/{donorId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Projects: admin only
+    match /projects/{projectId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Communications: admin only
+    match /communications/{commId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Support requests: public create, admin read/update
+    match /supportRequests/{requestId} {
+      allow read: if request.auth != null;
+      allow create: if true;
+      allow update, delete: if request.auth != null;
     }
   }
 }

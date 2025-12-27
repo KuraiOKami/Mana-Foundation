@@ -56,9 +56,12 @@
         <button class="nav-item" data-nav="donors">👥 Donors CRM</button>
         <button class="nav-item" data-nav="communications">✉️ Communications</button>
         <button class="nav-item" data-nav="projects">🧭 Projects</button>
+        <button class="nav-item" data-nav="events">📅 Events</button>
         <button class="nav-item" data-nav="wishlist">🧾 Wish list</button>
         <button class="nav-item" data-nav="donations">💝 Donations</button>
+        <button class="nav-item" data-nav="orders">📦 Orders</button>
         <button class="nav-item" data-nav="requests">📨 Support requests</button>
+        <button class="nav-item" data-nav="vendors">🔧 Vendor Config</button>
       </nav>
     </aside>
 
@@ -290,6 +293,94 @@
             </div>
           </section>
 
+          <section class="panel" data-section="events">
+            <header class="panel-header">
+              <div>
+                <h2>Events Management</h2>
+                <p>Create and manage local events with linked materials.</p>
+              </div>
+            </header>
+            <div class="panel-body two-column">
+              <form id="event-form">
+                <h3>New Event</h3>
+                <label>
+                  Event Title
+                  <input type="text" name="title" placeholder="Community Food Drive" required />
+                </label>
+                <label>
+                  Event Type
+                  <select name="eventType">
+                    <option value="distribution">Distribution</option>
+                    <option value="fundraiser">Fundraiser</option>
+                    <option value="volunteer">Volunteer Day</option>
+                    <option value="outreach">Outreach</option>
+                  </select>
+                </label>
+                <label>
+                  Status
+                  <select name="status">
+                    <option value="draft">Draft</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </label>
+                <label>
+                  Start Date & Time
+                  <input type="datetime-local" name="startDate" required />
+                </label>
+                <label>
+                  End Date & Time
+                  <input type="datetime-local" name="endDate" />
+                </label>
+                <label>
+                  Location Name
+                  <input type="text" name="locationName" placeholder="Orlando Hub" />
+                </label>
+                <label>
+                  Address
+                  <input type="text" name="locationAddress" placeholder="245 Citrus Avenue" />
+                </label>
+                <label>
+                  City, State, ZIP
+                  <input type="text" name="locationCityStateZip" placeholder="Orlando, FL 32801" />
+                </label>
+                <label>
+                  Program
+                  <select name="programId">
+                    <option value="pantry">Community Pantry Network</option>
+                    <option value="relief">Emergency Relief</option>
+                    <option value="advocacy">Education & Advocacy</option>
+                    <option value="communities">Mana Communities</option>
+                  </select>
+                </label>
+                <label>
+                  Fundraising Goal (USD)
+                  <input type="number" name="fundraisingGoal" min="0" step="100" placeholder="5000" />
+                </label>
+                <label>
+                  Description
+                  <textarea name="description" rows="3" placeholder="Event details..."></textarea>
+                </label>
+                <label>
+                  Featured Image URL
+                  <input type="url" name="featuredImage" placeholder="https://..." />
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" name="isPublic" checked />
+                  Show on public site
+                </label>
+                <button class="btn" type="submit">Add Event</button>
+                <p class="status" id="event-status"></p>
+              </form>
+
+              <div class="table" id="events-table">
+                <p class="placeholder">Loading events...</p>
+              </div>
+            </div>
+          </section>
+
           <section class="panel" data-section="wishlist">
             <header class="panel-header">
               <div>
@@ -299,6 +390,7 @@
             </header>
             <div class="panel-body two-column">
               <form id="wishlist-form">
+                <h3>Item Details</h3>
                 <label>
                   Program name
                   <input type="text" name="program" placeholder="Community Pantry" required />
@@ -345,6 +437,52 @@
                   Notes / Description
                   <textarea name="notes" rows="3" placeholder="Why this item matters"></textarea>
                 </label>
+
+                <h3>Vendor Information</h3>
+                <label>
+                  Product URL
+                  <input type="url" name="vendorUrl" placeholder="https://amazon.com/dp/..." />
+                </label>
+                <div class="inline-fields">
+                  <label>
+                    Vendor
+                    <select name="vendorName">
+                      <option value="">Select vendor...</option>
+                      <option value="amazon">Amazon</option>
+                      <option value="lowes">Lowes</option>
+                      <option value="walmart">Walmart</option>
+                      <option value="homedepot">Home Depot</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </label>
+                  <button type="button" class="btn ghost small" id="fetch-vendor-data">Fetch Data</button>
+                </div>
+                <div id="vendor-preview" class="vendor-preview hidden"></div>
+
+                <h3>Donation Settings</h3>
+                <label>
+                  Donation Type
+                  <select name="donationType" id="donation-type-select">
+                    <option value="buyItem">Buy Whole Item</option>
+                    <option value="pool">Pool/Bucket (for expensive items)</option>
+                    <option value="both">Both Options</option>
+                  </select>
+                </label>
+                <div id="pool-settings" class="pool-settings">
+                  <label>
+                    Minimum Pool Donation (USD)
+                    <input type="number" name="minimumPoolDonation" min="1" step="1" value="25" />
+                  </label>
+                  <label>
+                    Pool Goal (USD) - Auto-calculated from price x quantity
+                    <input type="number" name="poolGoal" min="0" step="1" placeholder="Auto" readonly />
+                  </label>
+                  <label>
+                    Pool Funded (USD)
+                    <input type="number" name="poolFunded" min="0" step="0.01" placeholder="0" />
+                  </label>
+                </div>
+
                 <button class="btn" type="submit">Add wish list item</button>
                 <p class="form-hint">Items are stored in Firestore under <code>wishlistItems</code>.</p>
                 <p class="status" id="wishlist-status"></p>
@@ -400,6 +538,46 @@
             </div>
           </section>
 
+          <section class="panel" data-section="orders">
+            <header class="panel-header">
+              <div>
+                <h2>Order Tracking</h2>
+                <p>Monitor vendor orders and fulfillment status for funded items.</p>
+              </div>
+              <div class="order-filters">
+                <select id="order-status-filter">
+                  <option value="">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="ordered">Ordered</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                </select>
+              </div>
+            </header>
+
+            <div class="metrics order-metrics">
+              <article>
+                <p class="label">Pending Orders</p>
+                <p class="value" id="metric-orders-pending">-</p>
+              </article>
+              <article>
+                <p class="label">In Transit</p>
+                <p class="value" id="metric-orders-transit">-</p>
+              </article>
+              <article>
+                <p class="label">Delivered (30d)</p>
+                <p class="value" id="metric-orders-delivered">-</p>
+              </article>
+            </div>
+
+            <div class="panel-body">
+              <div class="table" id="orders-table">
+                <p class="placeholder">Loading orders...</p>
+              </div>
+            </div>
+          </section>
+
           <section class="panel" data-section="requests">
             <header class="panel-header">
               <div>
@@ -409,6 +587,71 @@
             </header>
             <div class="table" id="requests-table">
               <p class="placeholder">Loading requests…</p>
+            </div>
+          </section>
+
+          <section class="panel" data-section="vendors">
+            <header class="panel-header">
+              <div>
+                <h2>Vendor Configuration</h2>
+                <p>Manage vendor integrations and default shipping addresses.</p>
+              </div>
+            </header>
+            <div class="panel-body two-column">
+              <form id="vendor-form">
+                <h3>Configure Vendor</h3>
+                <label>
+                  Vendor
+                  <select name="vendorName" required>
+                    <option value="amazon">Amazon</option>
+                    <option value="lowes">Lowes</option>
+                    <option value="walmart">Walmart</option>
+                    <option value="homedepot">Home Depot</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+                <label>
+                  Display Name
+                  <input type="text" name="displayName" placeholder="Amazon" />
+                </label>
+                <label>
+                  Affiliate Tag (if applicable)
+                  <input type="text" name="affiliateTag" placeholder="manafoundation-20" />
+                </label>
+
+                <h4>Default Shipping Address</h4>
+                <label>
+                  Facility Name
+                  <input type="text" name="shippingName" placeholder="Mana Foundation Warehouse" />
+                </label>
+                <label>
+                  Street Address
+                  <input type="text" name="shippingAddress" placeholder="245 Citrus Avenue" />
+                </label>
+                <label>
+                  City
+                  <input type="text" name="shippingCity" placeholder="Orlando" />
+                </label>
+                <label>
+                  State
+                  <input type="text" name="shippingState" placeholder="FL" maxlength="2" />
+                </label>
+                <label>
+                  ZIP Code
+                  <input type="text" name="shippingZip" placeholder="32801" />
+                </label>
+
+                <label class="checkbox-label">
+                  <input type="checkbox" name="autoOrderNotifications" checked />
+                  Send email notifications when items are funded
+                </label>
+                <button class="btn" type="submit">Save Configuration</button>
+                <p class="status" id="vendor-status"></p>
+              </form>
+
+              <div class="table" id="vendors-table">
+                <p class="placeholder">Loading vendor configurations...</p>
+              </div>
             </div>
           </section>
         </section>

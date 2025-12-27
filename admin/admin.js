@@ -81,6 +81,25 @@ const projectForm = document.getElementById('project-form');
 const projectStatus = document.getElementById('project-status');
 const projectsTable = document.getElementById('projects-table');
 
+const eventForm = document.getElementById('event-form');
+const eventStatus = document.getElementById('event-status');
+const eventsTable = document.getElementById('events-table');
+
+const ordersTable = document.getElementById('orders-table');
+const orderStatusFilter = document.getElementById('order-status-filter');
+const metricOrdersPending = document.getElementById('metric-orders-pending');
+const metricOrdersTransit = document.getElementById('metric-orders-transit');
+const metricOrdersDelivered = document.getElementById('metric-orders-delivered');
+
+const vendorForm = document.getElementById('vendor-form');
+const vendorStatus = document.getElementById('vendor-status');
+const vendorsTable = document.getElementById('vendors-table');
+
+const donationTypeSelect = document.getElementById('donation-type-select');
+const poolSettings = document.getElementById('pool-settings');
+const fetchVendorDataBtn = document.getElementById('fetch-vendor-data');
+const vendorPreview = document.getElementById('vendor-preview');
+
 const fmtCurrency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 const fmtDate = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' });
 
@@ -102,14 +121,20 @@ const state = {
   donors: [],
   projects: [],
   messages: [],
+  events: [],
+  orders: [],
+  vendorConfigs: [],
   selected: {
     donorId: null,
     wishlistId: null,
-    projectId: null
+    projectId: null,
+    eventId: null,
+    vendorId: null
   },
   filters: {
     global: '',
-    donor: ''
+    donor: '',
+    orderStatus: ''
   }
 };
 
@@ -255,16 +280,30 @@ wishlistForm.addEventListener('submit', async (event) => {
     return;
   }
   const formData = new FormData(wishlistForm);
+  const price = Number(formData.get('price')) || 0;
+  const quantityNeeded = Number(formData.get('quantity')) || 1;
+  const donationType = formData.get('donationType') || 'buyItem';
+
   const payload = {
     program: formData.get('program')?.trim() || 'General',
     category: formData.get('category') || 'general',
     title: formData.get('title')?.trim() || 'Untitled item',
-    price: Number(formData.get('price')) || 0,
-    quantityNeeded: Number(formData.get('quantity')) || 0,
+    price: price,
+    quantityNeeded: quantityNeeded,
     quantityFunded: Number(formData.get('quantityFunded')) || 0,
     priority: formData.get('priority') || 'medium',
     image: formData.get('image')?.trim() || '',
-    notes: formData.get('notes')?.trim() || ''
+    notes: formData.get('notes')?.trim() || '',
+    // Vendor fields
+    vendorUrl: formData.get('vendorUrl')?.trim() || '',
+    vendorName: formData.get('vendorName') || '',
+    // Donation settings
+    donationType: donationType,
+    minimumPoolDonation: (Number(formData.get('minimumPoolDonation')) || 25) * 100, // Convert to cents
+    poolGoal: price * quantityNeeded * 100, // Auto-calculate in cents
+    poolFunded: (Number(formData.get('poolFunded')) || 0) * 100, // Convert to cents
+    poolDonorCount: 0,
+    orderStatus: 'pending'
   };
   try {
     if (state.selected.wishlistId) {
@@ -276,6 +315,7 @@ wishlistForm.addEventListener('submit', async (event) => {
     }
     state.selected.wishlistId = null;
     wishlistForm.reset();
+    if (poolSettings) poolSettings.style.display = 'none';
     refreshData();
   } catch (error) {
     console.error(error);
@@ -537,13 +577,16 @@ async function refreshData() {
   setLoading(true);
   dataErrorEl.textContent = '';
   try {
-    const [donations, wishlist, requests, donors, projects, messages] = await Promise.all([
+    const [donations, wishlist, requests, donors, projects, messages, events, orders, vendorConfigs] = await Promise.all([
       fetchCollection('donations', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 12 }),
       fetchCollection('wishlistItems', { orderByField: 'title' }),
       fetchCollection('supportRequests', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 12 }),
       fetchCollection('donors', { orderByField: 'name' }),
       fetchCollection('projects', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 50 }),
-      fetchCollection('communications', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 50 })
+      fetchCollection('communications', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 50 }),
+      fetchCollection('events', { orderByField: 'startDate', orderDirection: 'desc', limitTo: 50 }),
+      fetchCollection('orders', { orderByField: 'createdAt', orderDirection: 'desc', limitTo: 50 }),
+      fetchCollection('vendorConfigs')
     ]);
     state.donations = donations;
     state.wishlist = wishlist;
@@ -551,6 +594,9 @@ async function refreshData() {
     state.donors = donors;
     state.projects = projects;
     state.messages = messages;
+    state.events = events;
+    state.orders = orders;
+    state.vendorConfigs = vendorConfigs;
     renderDashboard();
     renderWishlistManager();
     renderDonationsTable();
@@ -559,6 +605,9 @@ async function refreshData() {
     renderProjectsTable();
     renderMessagesTable();
     renderDonorTimeline();
+    renderEventsTable();
+    renderOrdersTable();
+    renderVendorsTable();
   } catch (error) {
     console.error(error);
     dataErrorEl.textContent = 'Unable to load data. Check Firestore rules or network.';
@@ -1037,4 +1086,442 @@ function donationSeries(rows, monthsBack) {
     series.push({ label, total });
   }
   return series;
+}
+
+// ============================================
+// EVENTS MANAGEMENT
+// ============================================
+
+eventForm?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  eventStatus.textContent = '';
+  if (!auth.currentUser) {
+    eventStatus.textContent = 'Sign in required.';
+    return;
+  }
+  const formData = new FormData(eventForm);
+  const payload = {
+    title: formData.get('title')?.trim(),
+    eventType: formData.get('eventType') || 'distribution',
+    status: formData.get('status') || 'draft',
+    startDate: formData.get('startDate') ? new Date(formData.get('startDate')) : null,
+    endDate: formData.get('endDate') ? new Date(formData.get('endDate')) : null,
+    location: {
+      name: formData.get('locationName')?.trim() || '',
+      address: formData.get('locationAddress')?.trim() || '',
+      cityStateZip: formData.get('locationCityStateZip')?.trim() || ''
+    },
+    programId: formData.get('programId') || 'pantry',
+    fundraisingGoal: (Number(formData.get('fundraisingGoal')) || 0) * 100,
+    fundraisingRaised: 0,
+    description: formData.get('description')?.trim() || '',
+    featuredImage: formData.get('featuredImage')?.trim() || '',
+    isPublic: formData.get('isPublic') === 'on',
+    linkedItems: [],
+    updatedAt: serverTimestamp()
+  };
+  if (!payload.title) {
+    eventStatus.textContent = 'Title is required.';
+    return;
+  }
+  try {
+    if (state.selected.eventId) {
+      await updateDoc(doc(db, 'events', state.selected.eventId), payload);
+      eventStatus.textContent = '✅ Event updated';
+    } else {
+      await addDoc(collection(db, 'events'), { ...payload, createdAt: serverTimestamp() });
+      eventStatus.textContent = '✅ Event created';
+    }
+    state.selected.eventId = null;
+    eventForm.reset();
+    refreshData();
+  } catch (error) {
+    console.error(error);
+    eventStatus.textContent = 'Unable to save event.';
+  }
+});
+
+eventsTable?.addEventListener('click', (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+  const action = target.dataset.action;
+  const id = target.dataset.id;
+  if (!action || !id) return;
+  if (action === 'edit-event') {
+    loadEventForm(id);
+  }
+  if (action === 'delete-event') {
+    deleteEvent(id);
+  }
+});
+
+async function deleteEvent(id) {
+  if (!auth.currentUser || !id) return;
+  try {
+    await deleteDoc(doc(db, 'events', id));
+    eventStatus.textContent = 'Event deleted.';
+    if (state.selected.eventId === id) state.selected.eventId = null;
+    refreshData();
+  } catch (error) {
+    console.error(error);
+    eventStatus.textContent = 'Unable to delete event.';
+  }
+}
+
+function loadEventForm(id) {
+  const row = state.events.find((e) => e.id === id);
+  if (!row || !eventForm) return;
+  state.selected.eventId = id;
+  eventForm.querySelector('input[name="title"]').value = row.title || '';
+  eventForm.querySelector('select[name="eventType"]').value = row.eventType || 'distribution';
+  eventForm.querySelector('select[name="status"]').value = row.status || 'draft';
+  if (row.startDate) {
+    const startDate = row.startDate.toDate ? row.startDate.toDate() : new Date(row.startDate);
+    eventForm.querySelector('input[name="startDate"]').value = startDate.toISOString().slice(0, 16);
+  }
+  if (row.endDate) {
+    const endDate = row.endDate.toDate ? row.endDate.toDate() : new Date(row.endDate);
+    eventForm.querySelector('input[name="endDate"]').value = endDate.toISOString().slice(0, 16);
+  }
+  eventForm.querySelector('input[name="locationName"]').value = row.location?.name || '';
+  eventForm.querySelector('input[name="locationAddress"]').value = row.location?.address || '';
+  eventForm.querySelector('input[name="locationCityStateZip"]').value = row.location?.cityStateZip || '';
+  eventForm.querySelector('select[name="programId"]').value = row.programId || 'pantry';
+  eventForm.querySelector('input[name="fundraisingGoal"]').value = (row.fundraisingGoal || 0) / 100;
+  eventForm.querySelector('textarea[name="description"]').value = row.description || '';
+  eventForm.querySelector('input[name="featuredImage"]').value = row.featuredImage || '';
+  eventForm.querySelector('input[name="isPublic"]').checked = row.isPublic !== false;
+  eventStatus.textContent = 'Editing event...';
+}
+
+function renderEventsTable() {
+  if (!eventsTable) return;
+  const rows = state.events;
+  if (!rows.length) {
+    eventsTable.innerHTML = '<p class="placeholder">No events yet.</p>';
+    return;
+  }
+  eventsTable.innerHTML = rows
+    .map((row) => {
+      const startDate = row.startDate?.toDate ? row.startDate.toDate() : (row.startDate ? new Date(row.startDate) : null);
+      const dateStr = startDate ? fmtDate.format(startDate) : '—';
+      const status = row.status || 'draft';
+      const location = row.location?.name || row.location?.cityStateZip || '—';
+      const program = row.programId || 'General';
+      return `
+        <div class="row event">
+          <div>
+            <strong>${row.title || 'Untitled event'}</strong>
+            <small>${row.eventType} · ${status}</small>
+            <small>${location}</small>
+          </div>
+          <div>
+            <strong>${dateStr}</strong>
+            <small>${program}</small>
+          </div>
+          <div class="row-actions">
+            <button class="link" data-action="edit-event" data-id="${row.id}">Edit</button>
+            <button class="link danger" data-action="delete-event" data-id="${row.id}">Delete</button>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+}
+
+// ============================================
+// ORDERS TRACKING
+// ============================================
+
+orderStatusFilter?.addEventListener('change', (event) => {
+  state.filters.orderStatus = event.target.value || '';
+  renderOrdersTable();
+});
+
+function renderOrdersTable() {
+  if (!ordersTable) return;
+  let rows = state.orders;
+  const statusFilter = state.filters.orderStatus;
+  if (statusFilter) {
+    rows = rows.filter((o) => o.status === statusFilter);
+  }
+
+  // Update metrics
+  const pending = state.orders.filter((o) => o.status === 'pending' || o.status === 'processing').length;
+  const inTransit = state.orders.filter((o) => o.status === 'shipped').length;
+  const delivered = state.orders.filter((o) => o.status === 'delivered' && isWithinDays(o.createdAt, 30)).length;
+  if (metricOrdersPending) metricOrdersPending.textContent = String(pending);
+  if (metricOrdersTransit) metricOrdersTransit.textContent = String(inTransit);
+  if (metricOrdersDelivered) metricOrdersDelivered.textContent = String(delivered);
+
+  if (!rows.length) {
+    ordersTable.innerHTML = '<p class="placeholder">No orders yet. Orders are created when wishlist items are fully funded.</p>';
+    return;
+  }
+  ordersTable.innerHTML = rows
+    .map((row) => {
+      const status = row.status || 'pending';
+      const vendor = row.vendorName || 'Unknown';
+      const date = renderDate(row.createdAt);
+      const total = fmtCurrency.format((row.totalAmount || 0) / 100);
+      const items = row.items?.map((i) => i.wishlistItemId).join(', ') || 'No items';
+      const tracking = row.trackingNumber || '—';
+      return `
+        <div class="row order">
+          <div>
+            <strong>Order #${row.id.slice(0, 8)}</strong>
+            <small>Vendor: ${vendor}</small>
+            <small>Items: ${row.items?.length || 0}</small>
+          </div>
+          <div>
+            <span class="badge ${status}">${status}</span>
+            <small>${date}</small>
+          </div>
+          <div>
+            <strong>${total}</strong>
+            <small>Tracking: ${tracking}</small>
+          </div>
+          <div class="row-actions">
+            <button class="link" data-action="update-order" data-id="${row.id}">Update</button>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+}
+
+ordersTable?.addEventListener('click', async (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+  const action = target.dataset.action;
+  const id = target.dataset.id;
+  if (!action || !id) return;
+  if (action === 'update-order') {
+    const newStatus = prompt('Enter new status (pending, processing, ordered, shipped, delivered):');
+    if (newStatus && ['pending', 'processing', 'ordered', 'shipped', 'delivered'].includes(newStatus)) {
+      try {
+        const updates = { status: newStatus, updatedAt: serverTimestamp() };
+        if (newStatus === 'shipped') {
+          const tracking = prompt('Enter tracking number (optional):');
+          if (tracking) updates.trackingNumber = tracking;
+        }
+        await updateDoc(doc(db, 'orders', id), updates);
+        refreshData();
+      } catch (error) {
+        console.error(error);
+        alert('Unable to update order.');
+      }
+    }
+  }
+});
+
+// ============================================
+// VENDOR CONFIGURATION
+// ============================================
+
+vendorForm?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  vendorStatus.textContent = '';
+  if (!auth.currentUser) {
+    vendorStatus.textContent = 'Sign in required.';
+    return;
+  }
+  const formData = new FormData(vendorForm);
+  const vendorName = formData.get('vendorName');
+  const payload = {
+    vendorName,
+    displayName: formData.get('displayName')?.trim() || vendorName,
+    affiliateTag: formData.get('affiliateTag')?.trim() || '',
+    defaultShippingAddress: {
+      name: formData.get('shippingName')?.trim() || '',
+      address: formData.get('shippingAddress')?.trim() || '',
+      city: formData.get('shippingCity')?.trim() || '',
+      state: formData.get('shippingState')?.trim() || '',
+      zip: formData.get('shippingZip')?.trim() || ''
+    },
+    autoOrderNotifications: formData.get('autoOrderNotifications') === 'on',
+    status: 'active',
+    updatedAt: serverTimestamp()
+  };
+  try {
+    // Check if vendor config already exists
+    const existing = state.vendorConfigs.find((v) => v.vendorName === vendorName);
+    if (existing) {
+      await updateDoc(doc(db, 'vendorConfigs', existing.id), payload);
+      vendorStatus.textContent = '✅ Vendor updated';
+    } else {
+      await addDoc(collection(db, 'vendorConfigs'), { ...payload, createdAt: serverTimestamp() });
+      vendorStatus.textContent = '✅ Vendor configured';
+    }
+    vendorForm.reset();
+    refreshData();
+  } catch (error) {
+    console.error(error);
+    vendorStatus.textContent = 'Unable to save vendor config.';
+  }
+});
+
+vendorsTable?.addEventListener('click', (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+  const action = target.dataset.action;
+  const id = target.dataset.id;
+  if (!action || !id) return;
+  if (action === 'edit-vendor') {
+    loadVendorForm(id);
+  }
+  if (action === 'delete-vendor') {
+    deleteVendorConfig(id);
+  }
+});
+
+async function deleteVendorConfig(id) {
+  if (!auth.currentUser || !id) return;
+  try {
+    await deleteDoc(doc(db, 'vendorConfigs', id));
+    vendorStatus.textContent = 'Vendor config deleted.';
+    refreshData();
+  } catch (error) {
+    console.error(error);
+    vendorStatus.textContent = 'Unable to delete vendor config.';
+  }
+}
+
+function loadVendorForm(id) {
+  const row = state.vendorConfigs.find((v) => v.id === id);
+  if (!row || !vendorForm) return;
+  vendorForm.querySelector('select[name="vendorName"]').value = row.vendorName || 'amazon';
+  vendorForm.querySelector('input[name="displayName"]').value = row.displayName || '';
+  vendorForm.querySelector('input[name="affiliateTag"]').value = row.affiliateTag || '';
+  vendorForm.querySelector('input[name="shippingName"]').value = row.defaultShippingAddress?.name || '';
+  vendorForm.querySelector('input[name="shippingAddress"]').value = row.defaultShippingAddress?.address || '';
+  vendorForm.querySelector('input[name="shippingCity"]').value = row.defaultShippingAddress?.city || '';
+  vendorForm.querySelector('input[name="shippingState"]').value = row.defaultShippingAddress?.state || '';
+  vendorForm.querySelector('input[name="shippingZip"]').value = row.defaultShippingAddress?.zip || '';
+  vendorForm.querySelector('input[name="autoOrderNotifications"]').checked = row.autoOrderNotifications !== false;
+  vendorStatus.textContent = 'Editing vendor config...';
+}
+
+function renderVendorsTable() {
+  if (!vendorsTable) return;
+  const rows = state.vendorConfigs;
+  if (!rows.length) {
+    vendorsTable.innerHTML = '<p class="placeholder">No vendor configurations yet. Add your first vendor to enable order tracking.</p>';
+    return;
+  }
+  vendorsTable.innerHTML = rows
+    .map((row) => {
+      const vendor = row.displayName || row.vendorName || 'Unknown';
+      const address = row.defaultShippingAddress;
+      const addressStr = address ? `${address.city}, ${address.state} ${address.zip}` : 'Not configured';
+      const notifications = row.autoOrderNotifications ? 'Enabled' : 'Disabled';
+      return `
+        <div class="row vendor">
+          <div>
+            <strong>${vendor}</strong>
+            <small>Affiliate: ${row.affiliateTag || 'None'}</small>
+          </div>
+          <div>
+            <small>Ship to: ${addressStr}</small>
+            <small>Notifications: ${notifications}</small>
+          </div>
+          <div class="row-actions">
+            <button class="link" data-action="edit-vendor" data-id="${row.id}">Edit</button>
+            <button class="link danger" data-action="delete-vendor" data-id="${row.id}">Delete</button>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+}
+
+// ============================================
+// WISHLIST ENHANCEMENTS
+// ============================================
+
+// Toggle pool settings visibility based on donation type
+donationTypeSelect?.addEventListener('change', (event) => {
+  const value = event.target.value;
+  if (poolSettings) {
+    poolSettings.style.display = (value === 'pool' || value === 'both') ? 'block' : 'none';
+  }
+});
+
+// Auto-calculate pool goal when price or quantity changes
+wishlistForm?.querySelector('input[name="price"]')?.addEventListener('input', updatePoolGoal);
+wishlistForm?.querySelector('input[name="quantity"]')?.addEventListener('input', updatePoolGoal);
+
+function updatePoolGoal() {
+  const price = Number(wishlistForm?.querySelector('input[name="price"]')?.value) || 0;
+  const quantity = Number(wishlistForm?.querySelector('input[name="quantity"]')?.value) || 1;
+  const poolGoalInput = wishlistForm?.querySelector('input[name="poolGoal"]');
+  if (poolGoalInput) {
+    poolGoalInput.value = price * quantity;
+  }
+}
+
+// Fetch vendor data from URL
+fetchVendorDataBtn?.addEventListener('click', async () => {
+  const urlInput = wishlistForm?.querySelector('input[name="vendorUrl"]');
+  const url = urlInput?.value?.trim();
+  if (!url) {
+    alert('Please enter a product URL first.');
+    return;
+  }
+  try {
+    fetchVendorDataBtn.disabled = true;
+    fetchVendorDataBtn.textContent = 'Fetching...';
+    const response = await fetch('/.netlify/functions/fetch-product-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    const data = await response.json();
+    if (data.vendor && data.vendor !== 'other') {
+      wishlistForm.querySelector('select[name="vendorName"]').value = data.vendor;
+    }
+    if (vendorPreview) {
+      vendorPreview.classList.remove('hidden');
+      vendorPreview.innerHTML = `
+        <p><strong>Vendor:</strong> ${data.vendorDisplayName || data.vendor}</p>
+        <p><strong>Product ID:</strong> ${data.productId || 'Not detected'}</p>
+        ${data.requiresManualEntry ? '<p class="hint">Please enter product title, price, and image manually.</p>' : ''}
+      `;
+    }
+  } catch (error) {
+    console.error('Failed to fetch product data:', error);
+    alert('Unable to fetch product data. Please enter details manually.');
+  } finally {
+    fetchVendorDataBtn.disabled = false;
+    fetchVendorDataBtn.textContent = 'Fetch Data';
+  }
+});
+
+// Update loadWishlistForm to include new fields
+const originalLoadWishlistForm = loadWishlistForm;
+function loadWishlistFormEnhanced(id) {
+  const row = state.wishlist.find((w) => w.id === id);
+  if (!row || !wishlistForm) return;
+  state.selected.wishlistId = id;
+  wishlistForm.querySelector('input[name="program"]').value = row.program || '';
+  wishlistForm.querySelector('select[name="category"]').value = row.category || 'general';
+  wishlistForm.querySelector('input[name="title"]').value = row.title || '';
+  wishlistForm.querySelector('input[name="price"]').value = row.price || '';
+  wishlistForm.querySelector('input[name="quantity"]').value = row.quantityNeeded || '';
+  wishlistForm.querySelector('input[name="quantityFunded"]').value = row.quantityFunded || '';
+  wishlistForm.querySelector('select[name="priority"]').value = row.priority || 'medium';
+  wishlistForm.querySelector('input[name="image"]').value = row.image || '';
+  wishlistForm.querySelector('textarea[name="notes"]').value = row.notes || '';
+  // New fields
+  wishlistForm.querySelector('input[name="vendorUrl"]').value = row.vendorUrl || '';
+  wishlistForm.querySelector('select[name="vendorName"]').value = row.vendorName || '';
+  wishlistForm.querySelector('select[name="donationType"]').value = row.donationType || 'buyItem';
+  wishlistForm.querySelector('input[name="minimumPoolDonation"]').value = (row.minimumPoolDonation || 2500) / 100;
+  wishlistForm.querySelector('input[name="poolGoal"]').value = (row.poolGoal || 0) / 100;
+  wishlistForm.querySelector('input[name="poolFunded"]').value = (row.poolFunded || 0) / 100;
+  // Toggle pool settings visibility
+  if (poolSettings) {
+    poolSettings.style.display = (row.donationType === 'pool' || row.donationType === 'both') ? 'block' : 'none';
+  }
+  wishlistStatus.textContent = 'Editing item...';
 }

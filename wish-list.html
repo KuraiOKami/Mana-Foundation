@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
   <header class="hero page-hero">
@@ -62,118 +63,15 @@
             with the item you wish to underwrite and we will coordinate pickup, delivery, or vendor invoices.
           </p>
         </div>
-        <div class="wishlist-grid">
-          <article class="wishlist-card">
-            <img src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=900&q=80"
-              alt="Refrigerated box truck" loading="lazy" />
-            <div class="content">
-              <p class="badge">Community Pantry Network</p>
-              <h3>Refrigerated Box Truck</h3>
-              <p>Keep fresh produce cold on long rural routes. Includes liftgate + solar-assisted refrigeration.</p>
-              <p class="price">$85,000</p>
-              <small>Quantity needed: 2 · Estimated delivery: 6 weeks</small>
-            </div>
-            <footer>
-              <a class="btn" href="program-community-pantry.html#store" title="View pantry store">Buy this item</a>
-              <small>Donation processed through Stripe; note “Pantry Truck” on the gift.</small>
-            </footer>
-          </article>
+        <!-- Dynamic wishlist grid - populated by donate.js -->
+        <div class="wishlist-grid" id="wishlist-grid">
+          <p class="loading">Loading items...</p>
+        </div>
 
-          <article class="wishlist-card">
-            <img src="https://images.unsplash.com/photo-1523419409543-0c1df022bddb?auto=format&fit=crop&w=900&q=80"
-              alt="Cold storage pods" loading="lazy" />
-            <div class="content">
-              <p class="badge">Community Pantry Network</p>
-              <h3>Solar Cold Pod</h3>
-              <p>Standalone refrigerated pod for pantry partners storing produce for multi-day markets.</p>
-              <p class="price">$7,500</p>
-              <small>Quantity needed: 12 · Deploying to Glades, Hardee, Jackson counties</small>
-            </div>
-            <footer>
-              <a class="btn" href="program-community-pantry.html#store">Buy this item</a>
-              <small>We’ll order directly and send you receipts + impact photos.</small>
-            </footer>
-          </article>
-
-          <article class="wishlist-card">
-            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80"
-              alt="Emergency radios" loading="lazy" />
-            <div class="content">
-              <p class="badge">Emergency Relief</p>
-              <h3>NOAA Weather Radios (bulk)</h3>
-              <p>Equip families with rechargeable radios + flashlights before hurricane season.</p>
-              <p class="price">$35 each · $17,500 for pallet of 500</p>
-              <small>Goal: 5,000 radios by June</small>
-            </div>
-            <footer>
-              <a class="btn" href="program-emergency-relief.html#store">Buy this item</a>
-              <small>Donation note: “Weather Radio”. We send updates once distributed.</small>
-            </footer>
-          </article>
-
-          <article class="wishlist-card">
-            <img src="https://images.unsplash.com/photo-1444522651484-15b9bd36fdf4?auto=format&fit=crop&w=900&q=80"
-              alt="Tarps and tie-downs" loading="lazy" />
-            <div class="content">
-              <p class="badge">Emergency Relief</p>
-              <h3>Tarps + Tie-down Kits</h3>
-              <p>Skid of heavy-duty tarps, ropes, and anchors to secure damaged roofs post-storm.</p>
-              <p class="price">$18,000 per skid</p>
-              <small>Quantity needed: 4 skids · Ships to Orlando hub</small>
-            </div>
-            <footer>
-              <a class="btn" href="program-emergency-relief.html#store">Buy this item</a>
-              <small>Include “Tarps + Tie-downs” in the donation memo.</small>
-            </footer>
-          </article>
-
-          <article class="wishlist-card">
-            <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80"
-              alt="Advocacy fellows" loading="lazy" />
-            <div class="content">
-              <p class="badge">Education &amp; Advocacy</p>
-              <h3>Leadership Fellow Scholarship</h3>
-              <p>Provide a 12-month stipend, travel, and childcare so a fellow can advocate statewide.</p>
-              <p class="price">$3,500</p>
-              <small>Seats remaining: 20 · Fellows span Miami-Dade to Escambia</small>
-            </div>
-            <footer>
-              <a class="btn" href="program-education-advocacy.html#store">Buy this item</a>
-              <small>Memo: “Advocacy Fellow”. You’ll receive the fellow’s profile + updates.</small>
-            </footer>
-          </article>
-
-          <article class="wishlist-card" id="mana-communities">
-            <img src="https://images.unsplash.com/photo-1500534310685-86b8c7d7ad14?auto=format&fit=crop&w=900&q=80"
-              alt="Small cottages" loading="lazy" />
-            <div class="content">
-              <p class="badge">Mana Communities</p>
-              <h3>Net-Zero Cottage Kit</h3>
-              <p>Pre-fab walls, roofing, insulation, and finishes for one 400 sq ft transitional cottage.</p>
-              <p class="price">$125,000</p>
-              <small>Includes labor stipends + resident welcome kit. 24 cottages in Phase 1.</small>
-            </div>
-            <footer>
-              <a class="btn" href="program-mana-communities.html#store">Buy this item</a>
-              <small>Memo: “Mana Cottage”. We’ll coordinate naming + site visit.</small>
-            </footer>
-          </article>
-
-          <article class="wishlist-card">
-            <img src="https://images.unsplash.com/photo-1492724441997-5dc865305da7?auto=format&fit=crop&w=900&q=80"
-              alt="Solar kit" loading="lazy" />
-            <div class="content">
-              <p class="badge">Mana Communities</p>
-              <h3>Solar + Battery Kit</h3>
-              <p>8-panel array with battery storage keeps cottages powered during outages.</p>
-              <p class="price">$9,400</p>
-              <small>Need 24 kits · Includes installation + monitoring</small>
-            </div>
-            <footer>
-              <a class="btn" href="program-mana-communities.html#store">Buy this item</a>
-              <small>Memo: “Mana Solar”. Receive photos when installed.</small>
-            </footer>
-          </article>
+        <!-- General donation button -->
+        <div class="general-donation-cta">
+          <p>Want to support our mission without choosing a specific item?</p>
+          <button class="btn ghost" id="general-donate-btn">Make a General Donation</button>
         </div>
       </div>
     </section>
@@ -210,5 +108,6 @@
   </footer>
 
   <script src="app.js" defer></script>
+  <script src="donate.js" defer></script>
 </body>
 </html>
